@@ -12,12 +12,9 @@ import {
 import { useAuth } from "../context/AuthContext";
 
 const items = [
-  { name: "Dashboard", path: "/", icon: LayoutDashboard },
-  { name: "Projects", path: "/projects", icon: FolderKanban },
-  { name: "Products", path: "/products", icon: Package },
-  { name: "Tasks", path: "/tasks", icon: CheckSquare },
-  { name: "Reports", path: "/reports", icon: BarChart3 },
-  { name: "Settings", path: "/settings", icon: Settings },
+  { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
+  { name: "Products", path: "/admin/products", icon: Package },
+  { name: "Settings", path: "/admin/settings", icon: Settings },
 ];
 
 export default function Sidebar({
@@ -68,7 +65,7 @@ export default function Sidebar({
           <NavLink
             key={path}
             to={path}
-            end={path === "/"}
+            end={path === "/admin"}
             onClick={onClose}
             title={collapsed ? name : undefined}
             className={({ isActive }) =>

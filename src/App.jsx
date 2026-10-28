@@ -5,10 +5,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import Projects from "./pages/Projects";
 import Products from "./pages/Products";
-import Tasks from "./pages/Tasks";
-import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Shop from "./pages/Shop";
 
@@ -24,10 +21,7 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="/admin" element={<Dashboard />} />
-          <Route path="/admin/projects" element={<Projects />} />
           <Route path="/admin/products" element={<Products />} />
-          <Route path="/admin/tasks" element={<Tasks />} />
-          <Route path="/admin/reports" element={<Reports />} />
           <Route path="/admin/settings" element={<Settings />} />
         </Route>
       </Route>
