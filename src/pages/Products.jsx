@@ -10,6 +10,7 @@ import {
   X,
   AlertCircle,
   Video,
+  Upload,
 } from "lucide-react";
 import api from "../api/axios";
 
@@ -31,7 +32,6 @@ const INITIAL_FORM_STATE = {
   weightGrams: "",
   platingType: "1 Gram Gold Plated",
   stoneDetails: "None",
-  images: "",
   youtubeVideoId: "",
   isFeatured: false,
 };
@@ -48,6 +48,8 @@ export default function Products() {
   const [modalMode, setModalMode] = useState("create"); // 'create' or 'edit'
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [submitting, setSubmitting] = useState(false);
 
   const fetchProducts = useCallback(async () => {
@@ -85,6 +87,8 @@ export default function Products() {
   const handleOpenCreate = () => {
     setModalMode("create");
     setFormData(INITIAL_FORM_STATE);
+    setSelectedFiles([]);
+    setImagePreviews([]);
     setIsModalOpen(true);
   };
 
@@ -101,10 +105,12 @@ export default function Products() {
       weightGrams: product.weightGrams || "",
       platingType: product.platingType || "1 Gram Gold Plated",
       stoneDetails: product.stoneDetails || "None",
-      images: Array.isArray(product.images) ? product.images.join(", ") : "",
       youtubeVideoId: product.youtubeVideoId || "",
       isFeatured: product.isFeatured || false,
     });
+    setSelectedFiles([]);
+    // Preload existing images as previews when editing
+    setImagePreviews(product.images || []);
     setIsModalOpen(true);
   };
 
@@ -123,28 +129,58 @@ export default function Products() {
     }));
   };
 
-  // Handle Submit (Create or Update)
+  // Handle File Selection & Generate Previews
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setSelectedFiles(files);
+
+    if (files.length > 0) {
+      const previews = files.map((file) => URL.createObjectURL(file));
+      setImagePreviews(previews);
+    } else {
+      setImagePreviews(modalMode === "edit" ? selectedProduct?.images || [] : []);
+    }
+  };
+
+  // Handle Submit (Create or Update with FormData)
   const handleSubmitForm = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setError("");
 
     try {
-      // Parse comma-separated image URLs into an array
-      const formattedData = {
-        ...formData,
-        price: Number(formData.price),
-        stock: Number(formData.stock),
-        weightGrams: Number(formData.weightGrams),
-        images: formData.images
-          ? formData.images.split(",").map((img) => img.trim()).filter(Boolean)
-          : [],
-      };
+      const data = new FormData();
+      data.append("title", formData.title);
+      data.append("description", formData.description);
+      data.append("price", formData.price);
+      data.append("category", formData.category);
+      data.append("stock", formData.stock);
+      data.append("weightGrams", formData.weightGrams);
+      data.append("platingType", formData.platingType);
+      data.append("stoneDetails", formData.stoneDetails);
+      data.append("youtubeVideoId", formData.youtubeVideoId);
+      data.append("isFeatured", formData.isFeatured);
+
+      // Append image files if selected
+      if (selectedFiles && selectedFiles.length > 0) {
+        for (let i = 0; i < selectedFiles.length; i++) {
+          data.append("images", selectedFiles[i]);
+        }
+      }
+
+      // If editing and no new files chosen, pass existing images back
+      if (modalMode === "edit" && selectedFiles.length === 0 && selectedProduct?.images) {
+        data.append("images", JSON.stringify(selectedProduct.images));
+      }
 
       if (modalMode === "create") {
-        await api.post("/products", formattedData);
+        await api.post("/products", data, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       } else {
-        await api.put(`/products/${selectedProduct._id}`, formattedData);
+        await api.put(`/products/${selectedProduct._id}`, data, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       }
 
       setIsModalOpen(false);
@@ -500,16 +536,37 @@ export default function Products() {
                 </div>
               </div>
 
+              {/* Cloudinary File Upload Input with Small Previews */}
               <div>
-                <label className="mb-1 block text-sm font-medium">Image URLs (Comma separated)</label>
-                <input
-                  type="text"
-                  name="images"
-                  value={formData.images}
-                  onChange={handleFormChange}
-                  placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
-                  className="w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-slate-700"
-                />
+                <label className="mb-1 block text-sm font-medium">Upload Images (Max 5)</label>
+                <div className="flex items-center gap-2 rounded-md border border-dashed border-slate-300 p-3 dark:border-slate-700">
+                  <Upload size={20} className="text-slate-400 shrink-0" />
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full text-sm text-slate-500 file:mr-4 file:rounded-md file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-950 dark:file:text-blue-300"
+                  />
+                </div>
+
+                {/* Small Image Previews Grid */}
+                {imagePreviews.length > 0 && (
+                  <div className="mt-3">
+                    <p className="mb-1.5 text-xs font-medium text-slate-500">Image Previews:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {imagePreviews.map((src, idx) => (
+                        <div key={idx} className="relative h-16 w-16 overflow-hidden rounded-md border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+                          <img
+                            src={src}
+                            alt={`Preview ${idx + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

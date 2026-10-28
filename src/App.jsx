@@ -1,4 +1,3 @@
-
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -16,8 +15,9 @@ import Shop from "./pages/Shop";
 export default function App() {
   return (
     <Routes>
-      {/* Public route */}
+      {/* Public routes */}
       <Route path="/login" element={<Login />} />
+      <Route path="/shop" element={<Shop />} />
 
       {/* Protected dashboard routes */}
       <Route element={<ProtectedRoute />}>
@@ -28,7 +28,6 @@ export default function App() {
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/shop" element={<Shop />} />
         </Route>
       </Route>
 
