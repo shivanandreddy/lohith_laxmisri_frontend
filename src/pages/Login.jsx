@@ -65,7 +65,7 @@ export default function Login() {
       login(user, token);
 
       // Your dashboard route is "/"
-      navigate("/", { replace: true });
+      navigate("/admin", { replace: true });
     } catch (err) {
       setError(
         err.response?.data?.message ||
