@@ -15,19 +15,20 @@ import Shop from "./pages/Shop";
 export default function App() {
   return (
     <Routes>
-      {/* Public routes */}
-      <Route path="/login" element={<Login />} />
+      {/* Public routes - Shop is now the default landing page */}
+      <Route path="/" element={<Shop />} />
       <Route path="/shop" element={<Shop />} />
+      <Route path="/login" element={<Login />} />
 
-      {/* Protected dashboard routes */}
+      {/* Protected admin dashboard routes */}
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/tasks" element={<Tasks />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/admin" element={<Dashboard />} />
+          <Route path="/admin/projects" element={<Projects />} />
+          <Route path="/admin/products" element={<Products />} />
+          <Route path="/admin/tasks" element={<Tasks />} />
+          <Route path="/admin/reports" element={<Reports />} />
+          <Route path="/admin/settings" element={<Settings />} />
         </Route>
       </Route>
 
