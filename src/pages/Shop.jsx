@@ -242,20 +242,8 @@ export default function Shop() {
             </div>
           </div>
 
-          {/* Right Icons: Country, Gold Scheme, Profile, Wishlist, Cart, Menu */}
+          {/* Right Icons */}
           <div className="flex items-center gap-3 sm:gap-4 shrink-0 text-slate-700 dark:text-slate-200">
-            
-            {/* Country Selector */}
-           
-
-           
-
-            
-
-          
-
-          
-
             {/* Mobile Menu Toggle Icon */}
             <button
               type="button"
@@ -285,8 +273,19 @@ export default function Shop() {
 
       {/* MAIN CONTENT AREA */}
       <main className="flex-1">
-        {/* Breadcrumbs */}
-     
+        
+        {/* HERO BANNER SECTION */}
+        <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-8">
+          <div className="relative overflow-hidden rounded-3xl shadow-2xl bg-black border border-amber-500/30">
+            <div className="relative w-full aspect-[21/9] sm:aspect-[2.8/1] overflow-hidden">
+              <img
+                src="../../public/Gemini_Generated_Image_ks0n4bks0n4bks0n.png"
+                alt="Laxmi Sri Art Jewellers Women's Arts Collection"
+                className="w-full h-full object-cover object-center"
+              />
+            </div>
+          </div>
+        </section>
 
         {/* Shop Section */}
         <section
@@ -571,7 +570,6 @@ export default function Shop() {
               <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
                 Crafting timeless elegance with premium 1 gram gold plating, American diamonds, and handcrafted traditional designs.
               </p>
-             
             </div>
 
             {/* Quick Links */}
