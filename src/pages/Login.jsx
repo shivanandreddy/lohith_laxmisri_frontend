@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -82,8 +81,13 @@ export default function Login() {
     <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10 dark:bg-slate-950">
       <section className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-blue-600 text-2xl font-bold text-white">
-            A
+          {/* Replaced 'A' box with the logo image */}
+          <div className="mx-auto mb-4 flex justify-center items-center">
+            <img 
+              src="/logo.png" 
+              alt="Laxmi Sri Art Jewellers Logo" 
+              className="h-16 w-auto object-contain"
+            />
           </div>
 
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">

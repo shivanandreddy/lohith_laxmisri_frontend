@@ -190,15 +190,17 @@ export default function Shop() {
           
           {/* Left: Logo & Subtitle */}
           <a href="/shop" className="flex items-center gap-3 shrink-0 group">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-600 to-red-600 text-white shadow-md shadow-amber-600/20 group-hover:scale-105 transition">
-              <Gem size={24} />
-            </div>
+            <img 
+              src="/logo.png" 
+              alt="Laxmi Sri Art Jewellers Logo" 
+              className="h-15 w-auto object-contain "
+            />
             <div className="flex flex-col">
-              <span className="text-lg sm:text-xl font-black tracking-tight text-red-700 dark:text-red-500 leading-none">
-                Laxmi Sri
+              <span className="text-lg sm:text-xl font-black tracking-tight text-amber-600 dark:text-amber-300 leading-none">
+                Laxmi Sri Art Jewellers
               </span>
               <span className="text-[10px] font-bold tracking-widest text-slate-600 dark:text-slate-400 mt-1 uppercase">
-                World's favourite jeweller
+                Hyderabad's favourite jeweller
               </span>
             </div>
           </a>
@@ -210,14 +212,14 @@ export default function Shop() {
               onClick={() => window.alert("Store locator clicked!")}
               className="flex items-center gap-1.5 hover:text-red-700 transition"
             >
-              <MapPin size={16} className="text-red-600" />
+              <MapPin size={16} className="text-amber-300" />
               <span>Store</span>
             </button>
             <a
               href="tel:+919876543210"
               className="flex items-center gap-1.5 hover:text-red-700 transition"
             >
-              <Phone size={16} className="text-red-600" />
+              <Phone size={16} className="text-amber-300" />
               <span>+91 98765 43210</span>
             </a>
           </div>
@@ -279,10 +281,10 @@ export default function Shop() {
           <div className="relative overflow-hidden rounded-3xl shadow-2xl bg-black border border-amber-500/30">
             <div className="relative w-full aspect-[21/9] sm:aspect-[2.8/1] overflow-hidden">
               <img
-  src="/Gemini_Generated_Image_ks0n4bks0n4bks0n.png"
-  alt="Laxmi Sri Art Jewellers Women's Arts Collection"
-  className="w-full h-full object-cover object-center"
-/>
+                src="/Gemini_Generated_Image_ks0n4bks0n4bks0n.png"
+                alt="Laxmi Sri Art Jewellers Women's Arts Collection"
+                className="w-full h-full object-cover object-center"
+              />
             </div>
           </div>
         </section>
@@ -294,7 +296,7 @@ export default function Shop() {
         >
           <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-600 dark:text-red-400">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-600 dark:text-amber-300">
                 The Collection
               </p>
               <h1 className="mt-1 text-2xl font-bold sm:text-3xl">
@@ -562,10 +564,14 @@ export default function Shop() {
             {/* Brand Info */}
             <div className="space-y-4 md:col-span-1">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-700 text-white shadow-md">
-                  <Gem size={18} />
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl  text-white shadow-md">
+                  <img 
+              src="/logo.png" 
+              alt="Laxmi Sri Art Jewellers Logo" 
+              className="h-15 w-auto object-contain "
+            />
                 </div>
-                <span className="text-base font-black tracking-tight">Laxmi Sri Jewels</span>
+                <span className="text-base font-black tracking-tight">Laxmi Sri Art Jewellers</span>
               </div>
               <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
                 Crafting timeless elegance with premium 1 gram gold plating, American diamonds, and handcrafted traditional designs.
