@@ -279,10 +279,10 @@ export default function Shop() {
           <div className="relative overflow-hidden rounded-3xl shadow-2xl bg-black border border-amber-500/30">
             <div className="relative w-full aspect-[21/9] sm:aspect-[2.8/1] overflow-hidden">
               <img
-                src="../../public/Gemini_Generated_Image_ks0n4bks0n4bks0n.png"
-                alt="Laxmi Sri Art Jewellers Women's Arts Collection"
-                className="w-full h-full object-cover object-center"
-              />
+  src="/Gemini_Generated_Image_ks0n4bks0n4bks0n.png"
+  alt="Laxmi Sri Art Jewellers Women's Arts Collection"
+  className="w-full h-full object-cover object-center"
+/>
             </div>
           </div>
         </section>
