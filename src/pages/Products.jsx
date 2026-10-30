@@ -11,6 +11,8 @@ import {
   AlertCircle,
   Video,
   Upload,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import api from "../api/axios";
 
@@ -42,13 +44,20 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create"); // 'create' or 'edit'
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
+  
+  // Separate states for newly uploaded files vs existing image URLs during edit
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [submitting, setSubmitting] = useState(false);
 
@@ -88,6 +97,7 @@ export default function Products() {
     setModalMode("create");
     setFormData(INITIAL_FORM_STATE);
     setSelectedFiles([]);
+    setExistingImages([]);
     setImagePreviews([]);
     setIsModalOpen(true);
   };
@@ -109,8 +119,9 @@ export default function Products() {
       isFeatured: product.isFeatured || false,
     });
     setSelectedFiles([]);
-    // Preload existing images as previews when editing
-    setImagePreviews(product.images || []);
+    const productImages = product.images || [];
+    setExistingImages(productImages);
+    setImagePreviews(productImages);
     setIsModalOpen(true);
   };
 
@@ -129,17 +140,33 @@ export default function Products() {
     }));
   };
 
-  // Handle File Selection & Generate Previews
+  // Handle File Selection & Append to Previews
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    setSelectedFiles(files);
+    if (files.length === 0) return;
 
-    if (files.length > 0) {
-      const previews = files.map((file) => URL.createObjectURL(file));
-      setImagePreviews(previews);
+    setSelectedFiles((prev) => [...prev, ...files]);
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
+    
+    e.target.value = "";
+  };
+
+  // Handle removing an image preview
+  const handleRemoveImage = (index) => {
+    const targetUrlOrBlob = imagePreviews[index];
+
+    if (existingImages.includes(targetUrlOrBlob)) {
+      setExistingImages((prev) => prev.filter((img) => img !== targetUrlOrBlob));
     } else {
-      setImagePreviews(modalMode === "edit" ? selectedProduct?.images || [] : []);
+      const existingCount = existingImages.length;
+      const fileIndex = index - existingCount;
+      if (fileIndex >= 0) {
+        setSelectedFiles((prev) => prev.filter((_, i) => i !== fileIndex));
+      }
     }
+
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   // Handle Submit (Create or Update with FormData)
@@ -161,16 +188,14 @@ export default function Products() {
       data.append("youtubeVideoId", formData.youtubeVideoId);
       data.append("isFeatured", formData.isFeatured);
 
-      // Append image files if selected
       if (selectedFiles && selectedFiles.length > 0) {
         for (let i = 0; i < selectedFiles.length; i++) {
           data.append("images", selectedFiles[i]);
         }
       }
 
-      // If editing and no new files chosen, pass existing images back
-      if (modalMode === "edit" && selectedFiles.length === 0 && selectedProduct?.images) {
-        data.append("images", JSON.stringify(selectedProduct.images));
+      if (modalMode === "edit") {
+        data.append("images", JSON.stringify(existingImages));
       }
 
       if (modalMode === "create") {
@@ -221,6 +246,16 @@ export default function Products() {
     ].some((value) => String(value ?? "").toLowerCase().includes(query));
   });
 
+  // Reset to page 1 whenever search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  // Pagination Calculations
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentTableData = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+
   return (
     <main className="min-h-full bg-slate-50 p-4 text-slate-900 sm:p-6 dark:bg-slate-900 dark:text-slate-100">
       {/* Header */}
@@ -270,9 +305,26 @@ export default function Products() {
           />
         </div>
 
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          {filteredProducts.length} product{filteredProducts.length !== 1 ? "s" : ""}
-        </p>
+        <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+          <span>
+            Showing {filteredProducts.length > 0 ? startIndex + 1 : 0}–{Math.of ? Math.min(startIndex + itemsPerPage, filteredProducts.length) : startIndex + currentTableData.length} of {filteredProducts.length} product{filteredProducts.length !== 1 ? "s" : ""}
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs">Rows:</span>
+            <select
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="rounded-md border border-slate-300 bg-transparent px-2 py-1 text-xs outline-none dark:border-slate-700 dark:bg-slate-950"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Error Notification */}
@@ -311,7 +363,7 @@ export default function Products() {
                   <span className="text-slate-500">Loading products...</span>
                 </td>
               </tr>
-            ) : filteredProducts.length === 0 ? (
+            ) : currentTableData.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-4 py-12 text-center">
                   <Package size={30} className="mx-auto mb-2 text-slate-400" />
@@ -322,7 +374,7 @@ export default function Products() {
                 </td>
               </tr>
             ) : (
-              filteredProducts.map((product) => (
+              currentTableData.map((product) => (
                 <tr key={product._id} className="transition-colors hover:bg-slate-100/70 dark:hover:bg-slate-800/50">
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-3">
@@ -406,6 +458,63 @@ export default function Products() {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Controls Footer */}
+      {!loading && filteredProducts.length > 0 && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Page {currentPage} of {totalPages}
+          </p>
+
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="inline-flex items-center gap-1 rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium hover:bg-slate-100 disabled:opacity-40 dark:border-slate-700 dark:hover:bg-slate-800"
+            >
+              <ChevronLeft size={14} /> Previous
+            </button>
+
+            <div className="hidden sm:flex items-center gap-1 px-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((page) => {
+                  // Show first, last, and pages close to current page for compactness
+                  return page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1;
+                })
+                .map((page, index, array) => {
+                  // Add ellipsis helper logic if needed, or simply map out items
+                  const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
+                  return (
+                    <div key={page} className="flex items-center">
+                      {showEllipsisBefore && <span className="px-1.5 text-xs text-slate-400">...</span>}
+                      <button
+                        type="button"
+                        onClick={() => setCurrentPage(page)}
+                        className={`h-7 w-7 rounded-md text-xs font-medium transition-colors ${
+                          currentPage === page
+                            ? "bg-blue-600 text-white"
+                            : "border border-slate-300 hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    </div>
+                  );
+                })}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="inline-flex items-center gap-1 rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium hover:bg-slate-100 disabled:opacity-40 dark:border-slate-700 dark:hover:bg-slate-800"
+            >
+              Next <ChevronRight size={14} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* CREATE / UPDATE MODAL */}
       {isModalOpen && (
@@ -536,7 +645,7 @@ export default function Products() {
                 </div>
               </div>
 
-              {/* Cloudinary File Upload Input with Small Previews */}
+              {/* Cloudinary File Upload Input with Previews & Delete Buttons */}
               <div>
                 <label className="mb-1 block text-sm font-medium">Upload Images (Max 5)</label>
                 <div className="flex items-center gap-2 rounded-md border border-dashed border-slate-300 p-3 dark:border-slate-700">
@@ -550,18 +659,26 @@ export default function Products() {
                   />
                 </div>
 
-                {/* Small Image Previews Grid */}
+                {/* Image Previews Grid with Delete/Unselect Buttons */}
                 {imagePreviews.length > 0 && (
                   <div className="mt-3">
-                    <p className="mb-1.5 text-xs font-medium text-slate-500">Image Previews:</p>
-                    <div className="flex flex-wrap gap-2">
+                    <p className="mb-1.5 text-xs font-medium text-slate-500">Image Previews (Click X to remove):</p>
+                    <div className="flex flex-wrap gap-2.5">
                       {imagePreviews.map((src, idx) => (
-                        <div key={idx} className="relative h-16 w-16 overflow-hidden rounded-md border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+                        <div key={idx} className="relative group h-20 w-20 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-sm">
                           <img
                             src={src}
                             alt={`Preview ${idx + 1}`}
                             className="h-full w-full object-cover"
                           />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(idx)}
+                            title="Remove image"
+                            className="absolute right-1 top-1 rounded-full bg-red-600/90 p-1 text-white opacity-90 transition hover:bg-red-700 hover:opacity-100 shadow"
+                          >
+                            <X size={14} />
+                          </button>
                         </div>
                       ))}
                     </div>

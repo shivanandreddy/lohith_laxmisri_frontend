@@ -1,11 +1,7 @@
-
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
-  FolderKanban,
   Package,
-  CheckSquare,
-  BarChart3,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -46,16 +42,17 @@ export default function Sidebar({
         className="flex h-16 shrink-0 items-center gap-3 overflow-hidden
           border-b border-slate-200 px-5 dark:border-slate-800"
       >
-        <LayoutDashboard
-          className="shrink-0 text-blue-600"
-          size={24}
+        <img
+          src="/logo.png"
+          alt="Logo"
+          className="h-8 w-8 shrink-0 object-contain rounded-md"
         />
 
         <span
           className={`whitespace-nowrap font-bold text-slate-900
             dark:text-white ${collapsed ? "lg:hidden" : ""}`}
         >
-          WorkSpace
+          Laxmisri 
         </span>
       </div>
 

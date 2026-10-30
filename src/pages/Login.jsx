@@ -86,7 +86,7 @@ export default function Login() {
             <img 
               src="/logo.png" 
               alt="Laxmi Sri Art Jewellers Logo" 
-              className="h-16 w-auto object-contain"
+              className="h-30 w-auto object-contain"
             />
           </div>
 

@@ -1,10 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import {
   Search,
   ShoppingBag,
-  RefreshCw,
   Package,
-  AlertCircle,
   SlidersHorizontal,
   X,
   ChevronRight,
@@ -13,16 +11,15 @@ import {
   ShieldCheck,
   Truck,
   RotateCcw,
-  Gem,
   Phone,
   Mail,
   MapPin,
-  Heart,
-  User,
   Menu,
-  Coins,
-  Globe
-
+  Sparkles,
+  Award,
+  RefreshCw,
+  AlertCircle,
+  Heart
 } from "lucide-react";
 import api from "../api/axios";
 
@@ -41,8 +38,51 @@ const getImage = (product) => {
 
 const getPrice = (product) => {
   const price = Number(product.price ?? product.salePrice);
-  return Number.isFinite(price) && price >= 0 ? price : null;
+  return Number.isFinite(price) && price >= 0 ? price : 0;
 };
+
+// Reusable Image Component with smooth loading skeleton effect & reveal animation
+function LoadedImage({ src, alt, className = "", containerClassName = "" }) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  // Reset loading state if src changes
+  useEffect(() => {
+    setIsLoaded(false);
+    setHasError(false);
+  }, [src]);
+
+  return (
+    <div className={`relative overflow-hidden bg-slate-900 ${containerClassName}`}>
+      {/* Skeleton Shimmer Loader while loading */}
+      {!isLoaded && !hasError && (
+        <div className="absolute inset-0 z-10 animate-pulse bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-[length:200%_100%]" />
+      )}
+
+      {/* Actual Image */}
+      {src && !hasError ? (
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onLoad={() => setIsLoaded(true)}
+          onError={() => {
+            setHasError(true);
+            setIsLoaded(true);
+          }}
+          className={`${className} transition-opacity duration-500 ease-out ${
+            isLoaded ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      ) : (
+        <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-slate-500">
+          <Package size={30} strokeWidth={1.2} />
+          <span className="text-[10px]">No image</span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Shop() {
   const [products, setProducts] = useState([]);
@@ -53,10 +93,15 @@ export default function Shop() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Modal State for Amazon/Flipkart style details view
+  // Mobile Menu & Search Toggle States
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
+  // Modal State for Product Details view
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
+  // Fetch Products from Backend API
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -78,7 +123,7 @@ export default function Shop() {
       setError(
         err.response?.data?.message ||
           err.message ||
-          "Could not load products."
+          "Could not load products from backend."
       );
     } finally {
       setLoading(false);
@@ -89,6 +134,7 @@ export default function Shop() {
     fetchProducts();
   }, [fetchProducts]);
 
+  // Categories derived dynamically from backend data
   const categories = useMemo(() => {
     const values = products
       .map((product) =>
@@ -101,6 +147,7 @@ export default function Shop() {
     return ["All", ...new Set(values)];
   }, [products]);
 
+  // Filtering & Sorting Logic
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
 
@@ -111,16 +158,13 @@ export default function Shop() {
           : product.category;
 
       const matchesSearch = [
-        product.name,
         product.title,
+        product.name,
         product.description,
         productCategory,
-        product.brand,
-        product.sku,
         product.platingType,
-      ].some((value) =>
-        String(value ?? "").toLowerCase().includes(query)
-      );
+        product.stoneDetails,
+      ].some((value) => String(value ?? "").toLowerCase().includes(query));
 
       const matchesCategory =
         category === "All" || productCategory === category;
@@ -129,17 +173,13 @@ export default function Shop() {
     });
 
     if (sort === "price-low") {
-      result.sort(
-        (a, b) => (getPrice(a) ?? Infinity) - (getPrice(b) ?? Infinity)
-      );
+      result.sort((a, b) => getPrice(a) - getPrice(b));
     } else if (sort === "price-high") {
-      result.sort(
-        (a, b) => (getPrice(b) ?? -Infinity) - (getPrice(a) ?? -Infinity)
-      );
+      result.sort((a, b) => getPrice(b) - getPrice(a));
     } else if (sort === "name") {
       result.sort((a, b) =>
-        String(a.name ?? a.title ?? "").localeCompare(
-          String(b.name ?? b.title ?? "")
+        String(a.title ?? a.name ?? "").localeCompare(
+          String(b.title ?? b.name ?? "")
         )
       );
     }
@@ -160,13 +200,11 @@ export default function Shop() {
   }, [filteredProducts, currentPage]);
 
   const formatPrice = (price) =>
-    price == null
-      ? "Price unavailable"
-      : new Intl.NumberFormat("en-IN", {
-          style: "currency",
-          currency: "INR",
-          maximumFractionDigits: 2,
-        }).format(price);
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(price);
 
   const handleOpenModal = (product) => {
     setSelectedProduct(product);
@@ -180,179 +218,231 @@ export default function Shop() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white">
-      {/* TOPBAR (Joyalukkas Style) */}
-      <header className="sticky top-0 z-40 w-full bg-white shadow-sm border-b border-slate-200 dark:bg-slate-900 dark:border-slate-800">
-        {/* Top Decorative Red Accent Bar */}
-        <div className="h-1 w-full" />
+    <div className="min-h-screen flex flex-col bg-[#0B0F19] text-[#F9FAFB] selection:bg-[#D4AF37] selection:text-black">
+      
+      {/* LUXURY NAVBAR */}
+      <header className="sticky top-0 z-40 w-full bg-[#0B0F19]/95 backdrop-blur-xl border-b border-[#D4AF37]/20 shadow-2xl">
+        <div className="h-1 w-full  from-[#D4AF37] via-[#E8B4B8] to-[#D4AF37]" />
 
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6 lg:px-8 gap-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8 gap-4">
           
-          {/* Left: Logo & Subtitle */}
-          <a href="/shop" className="flex items-center gap-3 shrink-0 group">
+          {/* Logo & Brand Identity */}
+          <a href="#" className="flex items-center gap-2.5 sm:gap-3 shrink-0 group">
             <img 
               src="/logo.png" 
               alt="Laxmi Sri Art Jewellers Logo" 
-              className="h-15 w-auto object-contain "
+              className="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
             />
             <div className="flex flex-col">
-              <span className="text-lg sm:text-xl font-black tracking-tight text-amber-600 dark:text-amber-300 leading-none">
+              <span className="text-sm sm:text-xl font-black text-[#D4AF37] truncate max-w-[160px] sm:max-w-none">
                 Laxmi Sri Art Jewellers
               </span>
-              <span className="text-[10px] font-bold tracking-widest text-slate-600 dark:text-slate-400 mt-1 uppercase">
-                Hyderabad's favourite jeweller
+              <span className="hidden sm:block text-[10px] font-bold tracking-[0.25em] text-[#E8B4B8] uppercase mt-0.5">
+                High-End Boutique & Diamond Collection
               </span>
             </div>
           </a>
 
-          {/* Center-Left: Store locator & Phone */}
-          <div className="hidden lg:flex items-center gap-6 text-xs font-semibold text-slate-700 dark:text-slate-300">
+          {/* Desktop Contact & Store Locator */}
+          <div className="hidden lg:flex items-center gap-6 text-xs font-medium text-slate-300">
             <button
               type="button"
-              onClick={() => window.alert("Store locator clicked!")}
-              className="flex items-center gap-1.5 hover:text-red-700 transition"
+              onClick={() => alert("Store Location: Main Bazaar, Hyderabad")}
+              className="flex items-center gap-2 hover:text-[#D4AF37] transition"
             >
-              <MapPin size={16} className="text-amber-300" />
-              <span>Store</span>
+              <MapPin size={16} className="text-[#D4AF37]" />
+              <span>Hyderabad Boutique</span>
             </button>
             <a
               href="tel:+919876543210"
-              className="flex items-center gap-1.5 hover:text-red-700 transition"
+              className="flex items-center gap-2 hover:text-[#D4AF37] transition"
             >
-              <Phone size={16} className="text-amber-300" />
+              <Phone size={16} className="text-[#D4AF37]" />
               <span>+91 98765 43210</span>
             </a>
           </div>
 
-          {/* Center: Search Bar */}
+          {/* Desktop Search Bar */}
           <div className="flex-1 max-w-md hidden md:block">
-            <div className="relative">
+            <div className="relative group">
               <input
                 type="search"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search for Jewelry, Necklaces, Bangles..."
-                className="w-full rounded-full border border-amber-500/60 bg-white py-2 pl-4 pr-11 text-xs outline-none transition focus:border-red-600 focus:ring-2 focus:ring-red-600/10 dark:border-slate-700 dark:bg-slate-900"
+                placeholder="Search diamond harams, gemstone chokers..."
+                className="w-full rounded-full border border-[#D4AF37]/30 bg-[#1A1A1A] py-2.5 pl-4 pr-11 text-xs text-[#F9FAFB] placeholder-slate-400 outline-none transition focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 shadow-inner"
               />
               <button
                 type="button"
                 aria-label="Search"
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-600 transition"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-[#D4AF37] transition"
               >
                 <Search size={16} />
               </button>
             </div>
           </div>
 
-          {/* Right Icons */}
-          <div className="flex items-center gap-3 sm:gap-4 shrink-0 text-slate-700 dark:text-slate-200">
-            {/* Mobile Menu Toggle Icon */}
+          {/* Mobile Actions: Search Toggle & Menu Toggle */}
+          <div className="flex items-center gap-2 md:hidden">
             <button
               type="button"
-              onClick={() => window.alert("Menu clicked!")}
-              className="p-1.5 hover:text-red-600 transition lg:hidden"
-              aria-label="Open Menu"
+              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+              className="p-2 rounded-xl bg-[#1A1A1A] text-[#D4AF37] hover:bg-slate-800 transition"
+              aria-label="Toggle Search"
             >
-              <Menu size={22} />
+              <Search size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-xl bg-[#1A1A1A] text-[#D4AF37] hover:bg-slate-800 transition"
+              aria-label="Toggle Menu"
+            >
+              <Menu size={18} />
             </button>
           </div>
         </div>
 
-        {/* Mobile Search Bar Row */}
-        <div className="px-4 pb-3 md:hidden">
-          <div className="relative">
-            <input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search for Jewelry..."
-              className="w-full rounded-full border border-amber-500/60 bg-white py-2 pl-4 pr-10 text-xs outline-none dark:border-slate-700 dark:bg-slate-900"
-            />
-            <Search size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+        {/* Collapsible Mobile Search Bar */}
+        {mobileSearchOpen && (
+          <div className="px-4 pb-3 pt-1 md:hidden animate-[fadeIn_0.2s_ease-out]">
+            <div className="relative">
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search jewelry collections..."
+                className="w-full rounded-full border border-[#D4AF37]/50 bg-[#1A1A1A] py-2.5 pl-4 pr-10 text-xs text-[#F9FAFB] placeholder-slate-400 outline-none shadow-md"
+                autoFocus
+              />
+              <Search size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#D4AF37]" />
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Collapsible Mobile Menu Drawer */}
+        {mobileMenuOpen && (
+          <div className="border-t border-slate-800 bg-[#1A1A1A] px-4 py-4 space-y-3 md:hidden animate-[fadeIn_0.2s_ease-out]">
+            <div className="flex flex-col gap-2.5 text-xs text-slate-300">
+              <button
+                type="button"
+                onClick={() => {
+                  alert("Store Location: Main Bazaar, Hyderabad");
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center gap-2.5 py-1.5 hover:text-[#D4AF37] text-left"
+              >
+                <MapPin size={16} className="text-[#D4AF37]" />
+                <span>Hyderabad Boutique</span>
+              </button>
+              <a
+                href="tel:+919876543210"
+                className="flex items-center gap-2.5 py-1.5 hover:text-[#D4AF37]"
+              >
+                <Phone size={16} className="text-[#D4AF37]" />
+                <span>+91 98765 43210</span>
+              </a>
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* MAIN CONTENT AREA */}
+      {/* MAIN CONTAINER */}
       <main className="flex-1">
         
-        {/* HERO BANNER SECTION */}
-        <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-8">
-          <div className="relative overflow-hidden rounded-3xl shadow-2xl bg-black border border-amber-500/30">
-            <div className="relative w-full aspect-[21/9] sm:aspect-[2.8/1] overflow-hidden">
-              <img
-                src="/Gemini_Generated_Image_ks0n4bks0n4bks0n.png"
-                alt="Laxmi Sri Art Jewellers Women's Arts Collection"
-                className="w-full h-full object-cover object-center"
-              />
+        {/* HERO BANNER WITH VIDEO */}
+        <section className="mx-auto max-w-7xl px-4 pt-4 sm:pt-6 sm:px-8">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl bg-[#1A1A1A] border border-[#D4AF37]/30">
+            <div className="relative w-full aspect-[16/9] sm:aspect-[3/1] overflow-hidden flex items-center justify-center">
+              
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 h-full w-full object-cover opacity-50 filter brightness-90"
+              >
+                <source 
+                  src="https://assets.mixkit.co/videos/preview/mixkit-hands-wearing-gold-bracelets-and-rings-41583-large.mp4" 
+                  type="video/mp4" 
+                />
+                Your browser does not support the video tag.
+              </video>
+
+              <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/85" />
+
+              <div className="relative z-10 px-4 py-8 sm:py-16 text-center max-w-3xl mx-auto">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/40 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] sm:tracking-[0.3em] text-[#D4AF37] mb-3 sm:mb-4 shadow-lg backdrop-blur-md">
+                  <Sparkles size={13} /> Bridal & Evening Collections
+                </span>
+                <h1 className="text-xl sm:text-5xl font-extrabold tracking-tight text-[#F9FAFB] leading-tight drop-shadow-md">
+                  Exquisite Diamond & <span className="text-[#D4AF37]">Gemstone Masterpieces</span>
+                </h1>
+                <p className="mt-2 sm:mt-4 text-[11px] sm:text-sm text-slate-200 max-w-lg mx-auto leading-relaxed drop-shadow">
+                  Elevate your presence with stunning rose-gold accents, hand-cut gemstones, and premier traditional jewelry collections.
+                </p>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Shop Section */}
-        <section
-          id="shop-products"
-          className="mx-auto max-w-7xl scroll-mt-6 px-4 py-6 sm:px-8 sm:py-8"
-        >
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        {/* PRODUCTS CATALOG SECTION */}
+        <section id="shop-products" className="mx-auto max-w-7xl px-4 py-6 sm:px-8">
+          
+          {/* Header & Sorting Bar */}
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-600 dark:text-amber-300">
-                The Collection
+              <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37] flex items-center gap-1.5">
+                <Award size={13} /> Curated Boutique Showcase
               </p>
-              <h1 className="mt-1 text-2xl font-bold sm:text-3xl">
-                Explore Products
-              </h1>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                {loading
-                  ? "Finding products for you..."
-                  : `Showing ${filteredProducts.length} results`}
+              <h2 className="mt-1 text-xl sm:text-3xl font-black tracking-tight text-[#F9FAFB]">
+                Exclusive Jewelry Gallery
+              </h2>
+              <p className="mt-0.5 text-xs text-slate-400">
+                {loading ? "Loading products..." : `Showing ${filteredProducts.length} luxury items`}
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={fetchProducts}
-              disabled={loading}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium transition hover:border-red-300 hover:text-red-700 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:text-red-300"
-            >
-              <RefreshCw
-                size={15}
-                className={loading ? "animate-spin" : ""}
-              />
-              Refresh
-            </button>
-          </div>
-
-          {/* Sort bar */}
-          <div className="mb-6 flex justify-end">
-            <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 dark:border-slate-700 dark:bg-slate-900">
-              <SlidersHorizontal size={16} className="text-slate-500" />
-              <span className="sr-only">Sort products</span>
-              <select
-                value={sort}
-                onChange={(event) => setSort(event.target.value)}
-                className="min-w-36 bg-transparent py-3 text-sm outline-none cursor-pointer"
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={fetchProducts}
+                disabled={loading}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-[#D4AF37]/30 bg-[#1A1A1A] px-3 py-1.5 sm:py-2 text-xs font-semibold text-[#D4AF37] hover:bg-slate-800 transition disabled:opacity-50"
               >
-                <option value="featured">Featured</option>
-                <option value="price-low">Price: low to high</option>
-                <option value="price-high">Price: high to low</option>
-                <option value="name">Name: A to Z</option>
-              </select>
-            </label>
+                <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
+                Refresh
+              </button>
+
+              <label className="flex items-center gap-1.5 rounded-xl border border-[#D4AF37]/30 bg-[#1A1A1A] px-3 py-1.5 sm:py-2 shadow-sm">
+                <SlidersHorizontal size={14} className="text-[#D4AF37]" />
+                <span className="sr-only">Sort items</span>
+                <select
+                  value={sort}
+                  onChange={(event) => setSort(event.target.value)}
+                  className="bg-transparent text-xs text-[#F9FAFB] outline-none cursor-pointer"
+                >
+                  <option value="featured" className="bg-[#1A1A1A]">Featured First</option>
+                  <option value="price-low" className="bg-[#1A1A1A]">Price: Low to High</option>
+                  <option value="price-high" className="bg-[#1A1A1A]">Price: High to Low</option>
+                  <option value="name" className="bg-[#1A1A1A]">Name: A to Z</option>
+                </select>
+              </label>
+            </div>
           </div>
 
-          {/* Category filters */}
+          {/* Category Filter Pills */}
           {!loading && !error && categories.length > 1 && (
-            <div className="mb-7 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <div className="mb-6 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
               {categories.map((item) => (
                 <button
                   key={item}
                   type="button"
                   onClick={() => setCategory(item)}
-                  className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition duration-200 ${
+                  className={`shrink-0 rounded-full border px-4 py-1.5 text-xs font-semibold transition-all duration-300 ${
                     category === item
-                      ? "border-red-600 bg-red-600 text-white shadow-lg shadow-red-600/20"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-red-300 hover:text-red-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-red-300"
+                      ? "border-[#D4AF37] bg-gradient-to-r from-[#D4AF37] to-[#E8B4B8] text-black shadow-md shadow-[#D4AF37]/20 font-bold"
+                      : "border-slate-800 bg-[#1A1A1A] text-slate-300 hover:border-[#D4AF37]/50 hover:text-[#D4AF37]"
                   }`}
                 >
                   {item}
@@ -361,50 +451,43 @@ export default function Shop() {
             </div>
           )}
 
-          {/* Error state */}
+          {/* Error State */}
           {error && (
-            <div
-              role="alert"
-              className="flex flex-col items-start gap-3 border-y border-red-200 py-6 text-red-700 dark:border-red-900 dark:text-red-300"
-            >
-              <div className="flex items-center gap-2">
+            <div role="alert" className="flex flex-col items-center gap-3 border border-red-900/50 rounded-2xl p-6 my-6 text-center bg-red-950/20 text-red-300">
+              <div className="flex items-center gap-2 font-semibold">
                 <AlertCircle size={20} />
                 <p className="text-sm">{error}</p>
               </div>
               <button
                 type="button"
                 onClick={fetchProducts}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                className="rounded-xl bg-[#D4AF37] px-4 py-2 text-xs font-bold text-black hover:bg-[#E8B4B8] transition"
               >
-                Try again
+                Try Again
               </button>
             </div>
           )}
 
-          {/* Animated loading skeletons */}
+          {/* Loading Skeletons */}
           {loading && (
-            <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
               {Array.from({ length: 8 }).map((_, index) => (
-                <div key={index} className="animate-pulse">
-                  <div className="aspect-[4/5] rounded-2xl bg-slate-200 dark:bg-slate-800" />
-                  <div className="mt-3 h-4 w-3/4 rounded bg-slate-200 dark:bg-slate-800" />
-                  <div className="mt-2 h-4 w-1/3 rounded bg-slate-200 dark:bg-slate-800" />
+                <div key={index} className="animate-pulse bg-[#1A1A1A] p-3 rounded-2xl border border-slate-800">
+                  <div className="aspect-[4/5] rounded-xl bg-slate-800" />
+                  <div className="mt-3 h-4 w-3/4 rounded bg-slate-800" />
+                  <div className="mt-2 h-4 w-1/3 rounded bg-slate-800" />
                 </div>
               ))}
             </div>
           )}
 
-          {/* Empty state */}
+          {/* Empty State */}
           {!loading && !error && filteredProducts.length === 0 && (
-            <div className="border-y border-slate-200 py-16 text-center dark:border-slate-800">
-              <Package
-                size={40}
-                className="mx-auto mb-4 text-slate-400"
-                strokeWidth={1.4}
-              />
-              <h3 className="text-lg font-semibold">No products found</h3>
-              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                Try another search or choose a different category.
+            <div className="border border-slate-800 rounded-3xl py-12 text-center bg-[#1A1A1A]/50">
+              <Package size={40} className="mx-auto mb-3 text-[#D4AF37] animate-bounce" strokeWidth={1.4} />
+              <h3 className="text-base font-bold text-[#F9FAFB]">No jewelry found</h3>
+              <p className="mt-1 text-xs text-slate-400">
+                Try searching with different terms or reset your filters.
               </p>
               <button
                 type="button"
@@ -412,20 +495,20 @@ export default function Shop() {
                   setSearch("");
                   setCategory("All");
                 }}
-                className="mt-4 text-sm font-semibold text-red-600 hover:underline dark:text-red-400"
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#D4AF37] px-4 py-2 text-xs font-bold text-black shadow-md hover:bg-[#E8B4B8] transition"
               >
-                Clear filters
+                Clear Filters
               </button>
             </div>
           )}
 
-          {/* Product grid */}
+          {/* Product Grid */}
           {!loading && !error && paginatedProducts.length > 0 && (
             <>
-              <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
                 {paginatedProducts.map((product, index) => {
                   const image = getImage(product);
-                  const name = product.name ?? product.title ?? "Untitled product";
+                  const title = product.title ?? product.name ?? "Untitled product";
                   const price = getPrice(product);
                   const productCategory =
                     typeof product.category === "object"
@@ -434,59 +517,49 @@ export default function Shop() {
 
                   return (
                     <article
-                      key={product._id ?? product.id ?? `${name}-${index}`}
+                      key={product._id ?? product.id ?? `${title}-${index}`}
                       onClick={() => handleOpenModal(product)}
-                      className="shop-product group cursor-pointer overflow-hidden rounded-2xl bg-white p-2 sm:p-3 shadow-sm border border-slate-100 transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+                      className="group cursor-pointer overflow-hidden rounded-xl sm:rounded-2xl bg-[#1A1A1A] p-2 sm:p-3.5 border border-slate-800 transition-all duration-300 hover:border-[#D4AF37]/60 hover:shadow-xl hover:-translate-y-1"
                     >
-                      <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-950">
-                        {image ? (
-                          <img
-                            src={image}
-                            alt={name}
-                            loading="lazy"
-                            className="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-105"
-                            onError={(event) => {
-                              event.currentTarget.style.display = "none";
-                            }}
-                          />
-                        ) : (
-                          <div className="flex h-full flex-col items-center justify-center gap-2 text-slate-400">
-                            <Package size={32} strokeWidth={1.2} />
-                            <span className="text-[10px]">No image</span>
-                          </div>
-                        )}
+                      <div className="relative aspect-[4/5] overflow-hidden rounded-lg sm:rounded-xl bg-slate-950">
+                        <LoadedImage
+                          src={image}
+                          alt={title}
+                          containerClassName="h-full w-full"
+                          className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                        />
 
                         {product.isFeatured && (
-                          <span className="absolute left-2 top-2 rounded-md bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow">
+                          <span className="absolute left-2 top-2 rounded-md bg-[#D4AF37] px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-black shadow">
                             Featured
                           </span>
                         )}
 
                         {productCategory && (
-                          <span className="absolute right-2 top-2 max-w-[70%] truncate rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-medium text-white backdrop-blur">
+                          <span className="absolute right-2 top-2 max-w-[70%] truncate rounded-full bg-black/70 px-2 py-0.5 text-[9px] sm:text-[10px] font-medium text-[#E8B4B8] backdrop-blur-md border border-[#D4AF37]/20">
                             {productCategory}
                           </span>
                         )}
                       </div>
 
-                      <div className="pt-3">
-                        <h3 className="truncate text-xs sm:text-sm font-semibold transition-colors group-hover:text-red-600 dark:group-hover:text-red-400">
-                          {name}
+                      <div className="pt-2.5 sm:pt-3.5 px-0.5">
+                        <h3 className="truncate text-xs sm:text-sm font-semibold text-[#F9FAFB] group-hover:text-[#D4AF37] transition-colors">
+                          {title}
                         </h3>
 
-                        <div className="mt-1.5 flex items-baseline justify-between gap-1">
-                          <p className="text-sm sm:text-base font-bold tracking-tight text-slate-900 dark:text-white">
+                        <div className="mt-1 sm:mt-2 flex items-baseline justify-between gap-1">
+                          <p className="text-xs sm:text-base font-black tracking-tight text-white">
                             {formatPrice(price)}
                           </p>
                           {product.stock !== undefined && (
-                            <span className={`text-[10px] font-medium ${product.stock > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                            <span className={`text-[9px] sm:text-[10px] font-semibold ${product.stock > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                               {product.stock > 0 ? `${product.stock} in stock` : 'Sold out'}
                             </span>
                           )}
                         </div>
 
                         {product.platingType && (
-                          <p className="mt-1 truncate text-[11px] text-slate-500 dark:text-slate-400">
+                          <p className="mt-1 truncate text-[10px] sm:text-[11px] text-slate-400 font-medium">
                             {product.platingType} {product.weightGrams ? `• ${product.weightGrams}g` : ''}
                           </p>
                         )}
@@ -496,48 +569,36 @@ export default function Shop() {
                 })}
               </div>
 
-              {/* Pagination Controls */}
+              {/* Pagination */}
               {totalPages > 1 && (
-                <div className="mt-10 flex items-center justify-center gap-2">
+                <div className="mt-10 flex items-center justify-center gap-1.5 sm:gap-2">
                   <button
                     type="button"
                     onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                     disabled={currentPage === 1}
-                    className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium transition hover:border-red-300 disabled:opacity-40 dark:border-slate-800 dark:bg-slate-900"
+                    className="inline-flex items-center gap-1 rounded-xl border border-slate-800 bg-[#1A1A1A] px-3 sm:px-4 py-2 text-xs font-bold transition hover:border-[#D4AF37] hover:text-[#D4AF37] disabled:opacity-40"
                   >
-                    <ChevronLeft size={16} />
+                    <ChevronLeft size={15} />
                     Prev
                   </button>
 
-                  <div className="flex items-center gap-1 px-2">
+                  <div className="flex items-center gap-1 px-1">
                     {Array.from({ length: totalPages }).map((_, i) => {
                       const pageNum = i + 1;
-                      if (
-                        pageNum === 1 ||
-                        pageNum === totalPages ||
-                        (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
-                      ) {
-                        return (
-                          <button
-                            key={pageNum}
-                            type="button"
-                            onClick={() => setCurrentPage(pageNum)}
-                            className={`h-9 w-9 rounded-xl text-sm font-semibold transition ${
-                              currentPage === pageNum
-                                ? "bg-red-600 text-white shadow-lg shadow-red-600/20"
-                                : "border border-slate-200 bg-white hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800"
-                            }`}
-                          >
-                            {pageNum}
-                          </button>
-                        );
-                      } else if (
-                        pageNum === currentPage - 2 ||
-                        pageNum === currentPage + 2
-                      ) {
-                        return <span key={pageNum} className="px-1 text-slate-400">...</span>;
-                      }
-                      return null;
+                      return (
+                        <button
+                          key={pageNum}
+                          type="button"
+                          onClick={() => setCurrentPage(pageNum)}
+                          className={`h-8 w-8 sm:h-9 sm:w-9 rounded-xl text-xs font-bold transition ${
+                            currentPage === pageNum
+                              ? "bg-[#D4AF37] text-black shadow-md shadow-[#D4AF37]/20"
+                              : "border border-slate-800 bg-[#1A1A1A] text-slate-300 hover:bg-slate-800"
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
                     })}
                   </div>
 
@@ -545,10 +606,10 @@ export default function Shop() {
                     type="button"
                     onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
                     disabled={currentPage === totalPages}
-                    className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium transition hover:border-red-300 disabled:opacity-40 dark:border-slate-800 dark:bg-slate-900"
+                    className="inline-flex items-center gap-1 rounded-xl border border-slate-800 bg-[#1A1A1A] px-3 sm:px-4 py-2 text-xs font-bold transition hover:border-[#D4AF37] hover:text-[#D4AF37] disabled:opacity-40"
                   >
                     Next
-                    <ChevronRight size={16} />
+                    <ChevronRight size={15} />
                   </button>
                 </div>
               )}
@@ -558,126 +619,106 @@ export default function Shop() {
       </main>
 
       {/* FOOTER */}
-      <footer className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-8">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-            {/* Brand Info */}
-            <div className="space-y-4 md:col-span-1">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl  text-white shadow-md">
-                  <img 
-              src="/logo.png" 
-              alt="Laxmi Sri Art Jewellers Logo" 
-              className="h-15 w-auto object-contain "
-            />
-                </div>
-                <span className="text-base font-black tracking-tight">Laxmi Sri Art Jewellers</span>
-              </div>
-              <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-                Crafting timeless elegance with premium 1 gram gold plating, American diamonds, and handcrafted traditional designs.
+      <footer className="border-t border-slate-800 bg-[#1A1A1A]">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 sm:px-8">
+          <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-4">
+            <div className="space-y-3 md:col-span-1">
+              <span className="text-base font-black tracking-wider text-[#D4AF37]">Laxmi Sri Art Jewellers</span>
+              <p className="text-xs leading-relaxed text-slate-400">
+                Crafting timeless elegance with premium diamond collections, gemstone chokers, and handcrafted luxury designs.
               </p>
             </div>
 
-            {/* Quick Links */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4">Quick Links</h4>
-              <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
-                <li><a href="/shop" className="hover:text-red-600 dark:hover:text-red-400 transition">Shop All Collections</a></li>
-                <li><a href="#shop-products" className="hover:text-red-600 dark:hover:text-red-400 transition">Necklaces & Sets</a></li>
-                <li><a href="#shop-products" className="hover:text-red-600 dark:hover:text-red-400 transition">Bangles & Earrings</a></li>
-                <li><a href="/login" className="hover:text-red-600 dark:hover:text-red-400 transition">Admin Portal</a></li>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#F9FAFB] mb-3 sm:mb-4">Quick Links</h4>
+              <ul className="space-y-2 text-xs text-slate-400">
+                <li><a href="#" className="hover:text-[#D4AF37] transition">Shop All Collections</a></li>
+                <li><a href="#shop-products" className="hover:text-[#D4AF37] transition">Diamond Chokers</a></li>
+                <li><a href="#shop-products" className="hover:text-[#D4AF37] transition">Gemstone Harams</a></li>
               </ul>
             </div>
 
-            {/* Customer Care */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4">Customer Care</h4>
-              <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-400">
-                <li><span className="hover:text-red-600 cursor-pointer">Shipping & Delivery</span></li>
-                <li><span className="hover:text-red-600 cursor-pointer">Returns & Exchange</span></li>
-                <li><span className="hover:text-red-600 cursor-pointer">Jewelry Care Guide</span></li>
-                <li><span className="hover:text-red-600 cursor-pointer">Terms & Conditions</span></li>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#F9FAFB] mb-3 sm:mb-4">Customer Care</h4>
+              <ul className="space-y-2 text-xs text-slate-400">
+                <li><span className="hover:text-[#D4AF37] cursor-pointer">Insured Shipping & Delivery</span></li>
+                <li><span className="hover:text-[#D4AF37] cursor-pointer">Returns & Exchange</span></li>
+                <li><span className="hover:text-[#D4AF37] cursor-pointer">Luxury Jewelry Care Guide</span></li>
               </ul>
             </div>
 
-            {/* Contact Info */}
-            <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-4">Contact Us</h4>
-              <div className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-slate-400">
-                <MapPin size={16} className="text-red-600 shrink-0 mt-0.5" />
-                <span>Jewelry Hub, Main Bazaar, India</span>
+            <div className="space-y-2.5">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#F9FAFB] mb-3 sm:mb-4">Contact Boutique</h4>
+              <div className="flex items-start gap-2 text-xs text-slate-400">
+                <MapPin size={15} className="text-[#D4AF37] shrink-0 mt-0.5" />
+                <span>Boutique Hub, Main Bazaar, Hyderabad</span>
               </div>
-              <div className="flex items-center gap-2.5 text-xs text-slate-600 dark:text-slate-400">
-                <Phone size={16} className="text-red-600 shrink-0" />
+              <div className="flex items-center gap-2 text-xs text-slate-400">
+                <Phone size={15} className="text-[#D4AF37] shrink-0" />
                 <span>+91 98765 43210</span>
               </div>
-              <div className="flex items-center gap-2.5 text-xs text-slate-600 dark:text-slate-400">
-                <Mail size={16} className="text-red-600 shrink-0" />
+              <div className="flex items-center gap-2 text-xs text-slate-400">
+                <Mail size={15} className="text-[#D4AF37] shrink-0" />
                 <span>support@laxmisrijewels.com</span>
               </div>
             </div>
           </div>
 
-          {/* Bottom Copyright */}
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 pt-6 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
-            <p>© {new Date().getFullYear()} Laxmi Sri Jewels. All rights reserved.</p>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-800 pt-5 text-xs text-slate-500">
+            <p>© {new Date().getFullYear()} Laxmi Sri Art Jewellers. All rights reserved.</p>
             <p className="flex items-center gap-1">
-              Built with <Heart size={13} className="text-red-500 fill-red-500" /> for Jewelry Connoisseurs
+              Built with <Heart size={12} className="text-[#E8B4B8] fill-[#E8B4B8]" /> for High-End Connoisseurs
             </p>
           </div>
         </div>
       </footer>
 
-      {/* Flipkart / Amazon Style Product Details Modal */}
+      {/* PRODUCT DETAILS MODAL */}
       {selectedProduct && (() => {
         const productImages = Array.isArray(selectedProduct.images) && selectedProduct.images.length > 0
           ? selectedProduct.images
           : [getImage(selectedProduct)].filter(Boolean);
         const currentImg = productImages[activeImageIndex] || productImages[0];
         const prodPrice = getPrice(selectedProduct);
+        const prodTitle = selectedProduct.title ?? selectedProduct.name ?? "Product Details";
         const prodCategory = typeof selectedProduct.category === "object" ? selectedProduct.category?.name : selectedProduct.category;
 
         return (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 overflow-y-auto animate-[shopFadeIn_200ms_ease_both]">
+          <div 
+            onClick={handleCloseModal}
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-0 sm:p-4 overflow-y-auto"
+          >
             <div 
-              className="relative w-full max-w-4xl rounded-t-3xl sm:rounded-2xl bg-white dark:bg-slate-900 shadow-2xl max-h-[90vh] sm:max-h-[85vh] flex flex-col overflow-hidden"
               onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-4xl rounded-t-3xl sm:rounded-2xl bg-[#1A1A1A] border border-slate-800 shadow-2xl max-h-[90vh] sm:max-h-[85vh] flex flex-col overflow-hidden"
             >
-              {/* Modal Header */}
-              <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-800 shrink-0">
+              <div className="flex items-center justify-between border-b border-slate-800 px-4 sm:px-6 py-3.5 sm:py-4 shrink-0">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400">
+                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[#D4AF37]">
                     {prodCategory || "Product Details"}
                   </span>
-                  <h2 className="text-base sm:text-lg font-bold truncate max-w-md">
-                    {selectedProduct.title || selectedProduct.name}
+                  <h2 className="text-sm sm:text-lg font-bold truncate max-w-[260px] sm:max-w-md text-[#F9FAFB]">
+                    {prodTitle}
                   </h2>
                 </div>
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="rounded-full p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition"
+                  className="rounded-full p-2 bg-slate-800 hover:bg-slate-700 transition text-slate-300"
                 >
                   <X size={18} />
                 </button>
               </div>
 
-              {/* Modal Body */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 sm:p-6 overflow-y-auto flex-1">
-                {/* Left Column: Image Gallery */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-6 overflow-y-auto flex-1">
                 <div className="flex flex-col gap-3">
-                  <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-slate-100 border border-slate-200 dark:border-slate-800 dark:bg-slate-950">
-                    {currentImg ? (
-                      <img
-                        src={currentImg}
-                        alt={selectedProduct.title}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-slate-400">
-                        <Package size={48} strokeWidth={1} />
-                      </div>
-                    )}
+                  <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-slate-950 border border-slate-800">
+                    <LoadedImage
+                      src={currentImg}
+                      alt={prodTitle}
+                      containerClassName="h-full w-full"
+                      className="h-full w-full object-cover"
+                    />
                   </div>
 
                   {/* Thumbnail Row */}
@@ -688,113 +729,105 @@ export default function Shop() {
                           key={idx}
                           type="button"
                           onClick={() => setActiveImageIndex(idx)}
-                          className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition ${
-                            activeImageIndex === idx ? "border-red-600 scale-95" : "border-transparent opacity-70 hover:opacity-100"
+                          className={`relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-xl border-2 transition ${
+                            activeImageIndex === idx ? "border-[#D4AF37] scale-95" : "border-transparent opacity-70 hover:opacity-100"
                           }`}
                         >
-                          <img src={img} alt="" className="h-full w-full object-cover" />
+                          <LoadedImage
+                            src={img}
+                            alt=""
+                            containerClassName="h-full w-full"
+                            className="h-full w-full object-cover"
+                          />
                         </button>
                       ))}
                     </div>
                   )}
                 </div>
 
-                {/* Right Column: Details & Specs */}
-                <div className="flex flex-col justify-between gap-5">
-                  <div className="space-y-4">
+                <div className="flex flex-col justify-between gap-4 sm:gap-5">
+                  <div className="space-y-3 sm:space-y-4">
                     <div>
-                      <h3 className="text-xl sm:text-2xl font-bold">
-                        {selectedProduct.title || selectedProduct.name}
+                      <h3 className="text-lg sm:text-2xl font-extrabold text-[#F9FAFB]">
+                        {prodTitle}
                       </h3>
-                      <div className="mt-2 flex items-baseline gap-3">
-                        <span className="text-2xl font-black text-slate-900 dark:text-white">
+                      <div className="mt-1.5 sm:mt-2 flex items-baseline gap-3">
+                        <span className="text-xl sm:text-2xl font-black text-[#D4AF37]">
                           {formatPrice(prodPrice)}
                         </span>
-                        <span className="text-xs text-emerald-600 font-semibold bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded">
+                        <span className="text-[11px] text-emerald-400 font-semibold bg-emerald-950/50 border border-emerald-800/50 px-2 py-0.5 rounded">
                           Inclusive of all taxes
                         </span>
                       </div>
                     </div>
 
-                    {/* Stock & Badge Info */}
                     <div className="flex flex-wrap gap-2">
                       {selectedProduct.stock > 0 ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-950 border border-emerald-800 px-3 py-1 text-xs font-semibold text-emerald-300">
                           <Check size={13} /> In Stock ({selectedProduct.stock} left)
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700 dark:bg-red-950 dark:text-red-300">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-red-950 border border-red-800 px-3 py-1 text-xs font-semibold text-red-300">
                           Out of stock
                         </span>
                       )}
-                      {selectedProduct.isFeatured && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-                          Featured Item
-                        </span>
-                      )}
                     </div>
 
-                    {/* Specifications Grid */}
-                    <div className="grid grid-cols-2 gap-3 rounded-2xl bg-slate-50 p-4 text-xs dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                    <div className="grid grid-cols-2 gap-2.5 sm:gap-3 rounded-2xl bg-slate-950 p-3.5 sm:p-4 text-xs border border-slate-800">
                       <div>
-                        <span className="text-slate-500">Plating Type:</span>
-                        <p className="font-semibold mt-0.5">{selectedProduct.platingType || "Standard"}</p>
+                        <span className="text-slate-400">Plating Type:</span>
+                        <p className="font-semibold mt-0.5 text-white">{selectedProduct.platingType || "Standard"}</p>
                       </div>
                       <div>
-                        <span className="text-slate-500">Weight:</span>
-                        <p className="font-semibold mt-0.5">{selectedProduct.weightGrams ? `${selectedProduct.weightGrams}g` : "N/A"}</p>
+                        <span className="text-slate-400">Weight:</span>
+                        <p className="font-semibold mt-0.5 text-white">{selectedProduct.weightGrams ? `${selectedProduct.weightGrams}g` : "N/A"}</p>
                       </div>
                       <div>
-                        <span className="text-slate-500">Stone Details:</span>
-                        <p className="font-semibold mt-0.5">{selectedProduct.stoneDetails || "None"}</p>
+                        <span className="text-slate-400">Stone Details:</span>
+                        <p className="font-semibold mt-0.5 text-white">{selectedProduct.stoneDetails || "None"}</p>
                       </div>
                       <div>
-                        <span className="text-slate-500">Category:</span>
-                        <p className="font-semibold mt-0.5">{prodCategory || "General"}</p>
+                        <span className="text-slate-400">Category:</span>
+                        <p className="font-semibold mt-0.5 text-white">{prodCategory || "General"}</p>
                       </div>
                     </div>
 
-                    {/* Description */}
                     <div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Product Description</h4>
-                      <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-                        {selectedProduct.description || "No description provided for this item."}
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Product Description</h4>
+                      <p className="text-xs sm:text-sm leading-relaxed text-slate-300">
+                        {selectedProduct.description || "No description provided."}
                       </p>
                     </div>
 
-                    {/* Trust Badges */}
-                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                      <div className="flex flex-col items-center text-center p-2 rounded-xl bg-slate-50 dark:bg-slate-800/30">
-                        <ShieldCheck size={18} className="text-red-600 mb-1" />
-                        <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400">100% Certified</span>
+                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800">
+                      <div className="flex flex-col items-center text-center p-2 rounded-xl bg-slate-950 border border-slate-800">
+                        <ShieldCheck size={16} className="text-[#D4AF37] mb-1" />
+                        <span className="text-[10px] font-medium text-slate-400">100% Certified</span>
                       </div>
-                      <div className="flex flex-col items-center text-center p-2 rounded-xl bg-slate-50 dark:bg-slate-800/30">
-                        <Truck size={18} className="text-red-600 mb-1" />
-                        <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400">Fast Shipping</span>
+                      <div className="flex flex-col items-center text-center p-2 rounded-xl bg-slate-950 border border-slate-800">
+                        <Truck size={16} className="text-[#D4AF37] mb-1" />
+                        <span className="text-[10px] font-medium text-slate-400">Insured Shipping</span>
                       </div>
-                      <div className="flex flex-col items-center text-center p-2 rounded-xl bg-slate-50 dark:bg-slate-800/30">
-                        <RotateCcw size={18} className="text-red-600 mb-1" />
-                        <span className="text-[10px] font-medium text-slate-600 dark:text-slate-400">Easy Returns</span>
+                      <div className="flex flex-col items-center text-center p-2 rounded-xl bg-slate-950 border border-slate-800">
+                        <RotateCcw size={16} className="text-[#D4AF37] mb-1" />
+                        <span className="text-[10px] font-medium text-slate-400">Easy Returns</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Modal Action Buttons */}
-                  <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-800 shrink-0">
+                  <div className="flex gap-3 pt-3 sm:pt-4 border-t border-slate-800 shrink-0">
                     <button
                       type="button"
-                      onClick={() => {
-                        window.alert(`Added "${selectedProduct.title || selectedProduct.name}" to cart!`);
-                      }}
-                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-red-600/25 transition hover:bg-red-700"
+                      onClick={() => alert(`Added "${prodTitle}" to cart!`)}
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#E8B4B8] px-4 sm:px-5 py-3 text-xs sm:text-sm font-bold text-black shadow-lg shadow-[#D4AF37]/20 transition hover:brightness-110"
                     >
-                      <ShoppingBag size={18} />
+                      <ShoppingBag size={17} />
                       Add to Cart
                     </button>
                     <button
                       type="button"
                       onClick={handleCloseModal}
-                      className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-medium transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                      className="rounded-xl border border-slate-800 bg-slate-800 px-4 sm:px-5 py-3 text-xs sm:text-sm font-medium transition hover:bg-slate-700 text-white"
                     >
                       Close
                     </button>
@@ -807,17 +840,6 @@ export default function Shop() {
       })()}
 
       <style>{`
-        @keyframes shopFadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(18px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
         .scrollbar-none::-webkit-scrollbar {
           display: none;
         }
