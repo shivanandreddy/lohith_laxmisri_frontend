@@ -1,67 +1,131 @@
 import { useState } from "react";
+import { useTheme } from "../context/ThemeContext";
+import { Palette, Check, Save } from "lucide-react";
 
 export default function Settings() {
+  const { currentTheme, setTheme, themes } = useTheme();
   const [name, setName] = useState("Shiva Reddy");
   const [email, setEmail] = useState("shiva@example.com");
   const [notifications, setNotifications] = useState(true);
+  const [selectedThemeId, setSelectedThemeId] = useState(currentTheme.id);
   const [message, setMessage] = useState("");
 
   function handleSubmit(event) {
     event.preventDefault();
-    setMessage("Demo settings saved in the current page state.");
+    setTheme(selectedThemeId);
+    setMessage("Settings and theme preferences saved successfully!");
   }
 
   return (
-    <section className="max-w-2xl space-y-5">
+    <section className="max-w-3xl space-y-6 pb-10">
       <div>
-        <h1 className="text-2xl font-bold">Settings</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Manage your profile and preferences.
+        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          Manage your profile, preferences, and application appearance.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit}
-        className="space-y-5 border border-slate-200 bg-white p-5
-          dark:border-slate-800 dark:bg-slate-950">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Profile Details Card */}
+        <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+          <h2 className="text-base font-semibold border-b pb-3 dark:border-slate-800">
+            Profile Information
+          </h2>
 
-        <div>
-          <label htmlFor="name" className="mb-2 block text-sm font-medium">
-            Full name
+          <div>
+            <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
+              Full name
+            </label>
+            <input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-slate-700"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
+              Email address
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-slate-700"
+            />
+          </div>
+
+          <label className="flex items-center gap-3 text-sm cursor-pointer pt-2">
+            <input
+              type="checkbox"
+              checked={notifications}
+              onChange={(e) => setNotifications(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+            />
+            Enable email and system notifications
           </label>
-          <input id="name" value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-md border border-slate-300 bg-transparent
-              px-3 py-2 text-sm outline-none focus:border-blue-500
-              dark:border-slate-700" />
         </div>
 
-        <div>
-          <label htmlFor="email" className="mb-2 block text-sm font-medium">
-            Email address
-          </label>
-          <input id="email" type="email" value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-md border border-slate-300 bg-transparent
-              px-3 py-2 text-sm outline-none focus:border-blue-500
-              dark:border-slate-700" />
+        {/* Theme Customization Card */}
+        <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+          <div className="flex items-center gap-2 border-b pb-3 dark:border-slate-800">
+            <Palette size={18} className="text-blue-600 dark:text-blue-400" />
+            <h2 className="text-base font-semibold">Appearance & Theme Palette</h2>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Select an accent theme for your dashboard and storefront interfaces.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            {themes.map((t) => {
+              const isSelected = selectedThemeId === t.id;
+              return (
+                <div
+                  key={t.id}
+                  onClick={() => {
+                    setSelectedThemeId(t.id);
+                    setTheme(t.id); // Instant live preview
+                  }}
+                  className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${
+                    isSelected
+                      ? "border-blue-600 bg-blue-50/50 dark:border-blue-500 dark:bg-blue-950/30 ring-1 ring-blue-600"
+                      : "border-slate-200 hover:border-slate-300 dark:border-slate-800 dark:hover:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="h-6 w-6 rounded-full shadow-inner border border-black/10 shrink-0"
+                      style={{ backgroundColor: t.accent }}
+                    />
+                    <div>
+                      <p className="text-xs font-semibold">{t.name}</p>
+                    </div>
+                  </div>
+                  {isSelected && <Check size={16} className="text-blue-600 dark:text-blue-400" />}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        <label className="flex items-center gap-3 text-sm">
-          <input type="checkbox" checked={notifications}
-            onChange={(e) => setNotifications(e.target.checked)}
-            className="h-4 w-4 accent-blue-600" />
-          Enable notifications
-        </label>
+        {/* Save Button */}
+        <div className="flex items-center gap-4">
+          <button
+            type="submit"
+            className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 shadow"
+          >
+            <Save size={16} />
+            Save preferences
+          </button>
 
-        <button type="submit"
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm
-            font-medium text-white hover:bg-blue-700">
-          Save settings
-        </button>
-
-        {message && (
-          <p role="status" className="text-sm text-emerald-600">{message}</p>
-        )}
+          {message && (
+            <p role="status" className="text-sm font-medium text-emerald-600 dark:text-emerald-400 animate-[fadeIn_0.2s_ease-out]">
+              {message}
+            </p>
+          )}
+        </div>
       </form>
     </section>
   );
