@@ -24,11 +24,19 @@ import {
 import api from "../api/axios";
 import { useTheme } from "../context/ThemeContext";
 
-// Imports for banner images - replace these with your actual paths
-// import bannerImg from "../assets/banner.png"; // Placeholder path for provided banner image
-// import logoPng from "../assets/logo.png"; // Assuming your logo image is here
-
 const ITEMS_PER_PAGE = 8;
+
+// MANUALLY CONFIGURE YOUR STATIC CATEGORIES & IMAGES HERE
+const STATIC_CATEGORIES = [
+  { name: "All", image: "/cat_all.webp" },
+   { name: "Necklaces", image: "/cat_necklace.webp" },
+   { name: "Bangles", image: "/cat_bangles.webp" },   
+    { name: "Earrings", image: "/cat_jhumkas.webp" },  
+     { name: "Rings", image: "/cat_rings.webp" },    // Place necklace.png in your public folder
+  { name: "Mangalsutra", image: "/cat_ms.webp" },       // Place chokers.png in your public folder
+  { name: "Combo Sets", image: "/cat_cs.webp" },
+          // Place harams.png in your public folder
+];
 
 const getImage = (product) => {
   const images = product.images;
@@ -136,18 +144,6 @@ export default function Shop() {
     fetchProducts();
   }, [fetchProducts]);
 
-  const categories = useMemo(() => {
-    const values = products
-      .map((product) =>
-        typeof product.category === "object"
-          ? product.category?.name
-          : product.category
-      )
-      .filter(Boolean);
-
-    return ["All", ...new Set(values)];
-  }, [products]);
-
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
 
@@ -226,21 +222,18 @@ export default function Shop() {
         className="sticky top-0 z-40 w-full border-b shadow-2xl transition-colors duration-300"
         style={{ backgroundColor: `${currentTheme.surface}f9`, borderColor: currentTheme.border }}
       >
-        <div 
-          className="h-1 w-full" 
-          
-        />
+        <div className="h-1 w-full" />
 
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8 gap-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-2.5 sm:gap-4 sm:px-6 sm:py-3 lg:px-8">
           
           <a href="#" className="flex items-center gap-2.5 sm:gap-3 shrink-0 group">
             <img 
               src="/logo.png"
               alt="Laxmi Sri Art Jewellers Logo" 
-              className="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              className="h-9 w-auto max-w-[42px] object-contain transition-transform duration-300 group-hover:scale-105 sm:h-12 sm:max-w-none"
             />
             <div className="flex flex-col">
-              <span className="text-sm sm:text-xl font-black truncate max-w-[160px] sm:max-w-none" style={{ color: currentTheme.text }}>
+              <span className="max-w-[145px] truncate text-[12px] font-black sm:max-w-none sm:text-xl" style={{ color: currentTheme.text }}>
                 Laxmi Sri Art Jewellers
               </span>
               <span className="hidden sm:block text-[10px] font-bold tracking-[0.25em] uppercase mt-0.5" style={{ color: currentTheme.muted }}>
@@ -292,11 +285,11 @@ export default function Shop() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex shrink-0 items-center gap-1 md:hidden">
             <button
               type="button"
               onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-              className="p-2 rounded-xl transition"
+              className="min-h-10 min-w-10 rounded-xl p-2 transition"
               style={{ backgroundColor: currentTheme.card, color: currentTheme.accent }}
             >
               <Search size={18} />
@@ -304,7 +297,7 @@ export default function Shop() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl transition"
+              className="min-h-10 min-w-10 rounded-xl p-2 transition"
               style={{ backgroundColor: currentTheme.card, color: currentTheme.accent }}
             >
               <Menu size={18} />
@@ -358,70 +351,79 @@ export default function Shop() {
       {/* MAIN CONTAINER */}
       <main className="flex-1">
         
-        {/* HERO BANNER SECTION - MODIFIED TO USE PROVIDED BANNER IMAGE */}
-        <section className="mx-auto max-w-7xl px-4 pt-4 sm:pt-6 sm:px-8">
-          <div 
-            className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl border aspect-[21/9] sm:aspect-[3/1] animate-fadeIn" 
+        {/* RESPONSIVE LUXURY HERO BANNER */}
+        <section className="w-full px-3 pt-3 sm:px-6 sm:pt-6 lg:px-8">
+          <div
+            className="relative isolate mx-auto min-h-[430px] w-full max-w-7xl overflow-hidden rounded-2xl border shadow-xl sm:min-h-0 sm:aspect-[16/7] sm:rounded-3xl lg:aspect-[16/6]"
             style={{ backgroundColor: currentTheme.card, borderColor: currentTheme.border }}
           >
-            
-            {/* Entry Animation: Image Fades & Zooms In */}
-            <div className="absolute inset-0 z-0 scale-105 animate-imageEnter">
-              <LoadedImage 
-                src='/banner.png'
-                alt="Elegant woman wearing diamond necklace with gold accent ring" 
-                containerClassName="w-full h-full"
-                className="w-full h-full object-cover"
+            {/* Banner artwork */}
+            <div className="absolute inset-0">
+              <LoadedImage
+                src="/banner.png"
+                alt="Luxury jewellery collection"
+                containerClassName="h-full w-full"
+                className="h-full w-full object-cover object-[58%_center] sm:object-center"
                 accentColor={currentTheme.accent}
               />
             </div>
 
-            {/* Content Overlays with delayed animations */}
-            <div className="absolute inset-y-0 right-0 z-10 w-full sm:w-[55%] flex flex-col justify-center items-start px-6 sm:px-12 py-8 bg-gradient-to-l from-black via-black/80 to-transparent">
-              
-              {/* Entry Animation: Logo Slides Up */}
-              <img 
-                src="/logo.png" 
-                alt="Laxmi Sri Art Jewellers Logo" 
-                className="h-12 sm:h-20 w-auto object-contain opacity-0 animate-contentSlideUp delay-300"
-              />
+            {/* Readability overlays: bottom-up on phones, right-to-left on desktop */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/65 to-black/5 sm:bg-gradient-to-r sm:from-black/5 sm:via-black/35 sm:to-black/95" />
+            <div className="absolute inset-0 flex items-end sm:items-center sm:justify-end">
+              <div className="w-full px-5 pb-7 pt-24 text-white sm:w-[56%] sm:px-8 sm:py-8 md:w-[52%] md:px-12 lg:px-16">
+                <div className="mb-3 flex items-center gap-3 sm:mb-5">
+                  <img
+                    src="/logo.png"
+                    alt="Laxmi Sri Art Jewellers"
+                    className="h-10 w-auto max-w-[130px] object-contain drop-shadow-lg sm:h-14 md:h-16"
+                  />
+                  <span className="h-8 w-px bg-white/40 sm:h-10" />
+                  <span className="text-[9px] font-semibold uppercase leading-relaxed tracking-[0.2em] text-white/80 sm:text-[10px]">
+                    Boutique<br />Collection
+                  </span>
+                </div>
 
-              {/* Entry Animation: Main Text Slides Up */}
-              <h1 className="mt-4 sm:mt-6 text-xl sm:text-4xl font-extrabold tracking-tight leading-tight opacity-0 animate-contentSlideUp delay-500">
-                EMBRACE <span className="font-light italic" style={{ color: currentTheme.accent }}>Your Elegance</span>
-              </h1>
-              
-              {/* Entry Animation: Description Text Slides Up */}
-              <p className="mt-3 sm:mt-5 text-[10px] sm:text-xs max-w-lg leading-relaxed opacity-0 animate-contentSlideUp delay-700 tracking-wider">
-                PREMIUM ARTISTRY, TIMELESS BEAUTY.<br />
-                <span className="opacity-70">ELEVATE YOUR LOOK WITH DIVINE GOLDEN CRAFTSMANSHIP.</span>
-              </p>
-              
-              {/* Entry Animation: Button Slides Up */}
-              <a 
-                href="#shop-products"
-                className="mt-5 sm:mt-8 inline-flex items-center gap-2 rounded-xl px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold shadow-lg transition duration-300 hover:brightness-110 opacity-0 animate-contentSlideUp delay-900 group"
-                style={{ backgroundColor: currentTheme.accent, color: "#000000" }}
-              >
-                SHOP NOW 
-                <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />
-              </a>
+                <p className="mb-2 flex items-center gap-2 text-[9px] font-bold uppercase tracking-[0.24em] text-amber-300 sm:text-[10px]">
+                  <Sparkles size={13} /> Crafted to make you shine
+                </p>
+                <h1 className="max-w-xl text-3xl font-black leading-[1.08] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl">
+                  EMBRACE
+                  <span className="mt-1 block font-light italic text-amber-300 sm:inline sm:pl-3">
+                    Your Elegance
+                  </span>
+                </h1>
+                <p className="mt-3 max-w-md text-[11px] leading-relaxed text-white/80 sm:mt-4 sm:text-xs md:text-sm">
+                  PREMIUM ARTISTRY, TIMELESS BEAUTY.
+                  <span className="mt-1 block text-white/65">
+                    Discover exquisite designs and elevate every occasion with timeless craftsmanship.
+                  </span>
+                </p>
+                <a
+                  href="#shop-products"
+                  className="group mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-extrabold tracking-wide shadow-lg transition duration-300 hover:-translate-y-0.5 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black sm:mt-7 sm:px-7 sm:text-sm"
+                  style={{ backgroundColor: currentTheme.accent, color: "#000000" }}
+                >
+                  EXPLORE COLLECTION
+                  <ChevronRight size={17} className="transition-transform group-hover:translate-x-1" />
+                </a>
+              </div>
             </div>
 
-            {/* Corner Star Accent */}
-            <Sparkles 
-              className="absolute bottom-4 right-4 z-20 opacity-30 animate-pulse delay-1000" 
-              size={20} 
-              style={{ color: currentTheme.accent }} 
-            />
-
+            <div className="pointer-events-none absolute right-4 top-4 hidden text-amber-300/80 sm:block">
+              <Sparkles size={24} className="animate-pulse" />
+            </div>
+            <div className="pointer-events-none absolute bottom-4 left-5 hidden items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.22em] text-white/70 sm:flex">
+              <span className="h-px w-8 bg-amber-300" />
+              Laxmi Sri Art Jewellers
+            </div>
           </div>
         </section>
 
         {/* PRODUCTS CATALOG SECTION */}
-        <section id="shop-products" className="mx-auto max-w-7xl px-4 py-6 sm:px-8">
+        <section id="shop-products" className="mx-auto w-full max-w-7xl px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
           
-          <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div className="mb-5 flex flex-col items-stretch justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] flex items-center gap-1.5" style={{ color: currentTheme.accent }}>
                 <Award size={13} /> Curated Boutique Showcase
@@ -429,12 +431,12 @@ export default function Shop() {
               <h2 className="mt-1 text-xl sm:text-3xl font-black tracking-tight">
                 Exclusive Jewelry Gallery
               </h2>
-              <p className="mt-0.5 text-xs opacity-80 text-black text-bold">
+              <p className="mt-0.5 text-xs opacity-70">
                 {loading ? "Loading products..." : `Showing ${filteredProducts.length} luxury items`}
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex w-full items-center gap-2 sm:w-auto">
               <button
                 type="button"
                 onClick={fetchProducts}
@@ -464,28 +466,52 @@ export default function Shop() {
             </div>
           </div>
 
-          {/* Category Filter Pills */}
-          {!loading && !error && categories.length > 1 && (
-            <div className="mb-6 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-              {categories.map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  onClick={() => setCategory(item)}
-                  className={`shrink-0 rounded-full border px-4 py-1.5 text-xs font-semibold transition-all duration-300 ${
-                    category === item
-                      ? "font-bold shadow-md"
-                      : "opacity-80 hover:opacity-100"
-                  }`}
-                  style={{
-                    backgroundColor: category === item ? currentTheme.accent : currentTheme.card,
-                    borderColor: category === item ? currentTheme.accent : currentTheme.border,
-                    color: category === item ? "#000000" : currentTheme.text
-                  }}
-                >
-                  {item}
-                </button>
-              ))}
+          {/* STATIC CIRCULAR CATEGORY SHOWCASE SECTION */}
+          {!loading && !error && (
+            <div className="mb-8">
+              <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 pt-1 scrollbar-none justify-start sm:justify-center">
+                {STATIC_CATEGORIES.map(({ name, image }) => {
+                  const isSelected = category === name;
+                  return (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => setCategory(name)}
+                      className="group flex flex-col items-center gap-2 shrink-0 focus:outline-none"
+                    >
+                      <div 
+                        className={`relative h-20 w-20 sm:h-24 sm:w-24 rounded-full p-1 transition-all duration-300 ${
+                          isSelected 
+                            ? "scale-105 shadow-lg ring-2 ring-offset-2" 
+                            : "opacity-80 hover:opacity-100 hover:scale-102"
+                        }`}
+                        style={{ 
+                          border: `2px solid ${isSelected ? currentTheme.accent : currentTheme.border}`,
+                          backgroundColor: currentTheme.card
+                        }}
+                      >
+                        <div className="h-full w-full overflow-hidden rounded-full bg-black/20">
+                          <LoadedImage
+                            src={image}
+                            alt={name}
+                            containerClassName="h-full w-full"
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            accentColor={currentTheme.accent}
+                          />
+                        </div>
+                      </div>
+                      <span 
+                        className={`text-xs font-bold tracking-wide transition-colors ${
+                          isSelected ? "font-extrabold" : "opacity-80"
+                        }`}
+                        style={{ color: isSelected ? currentTheme.accent : currentTheme.text }}
+                      >
+                        {name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 
@@ -509,7 +535,7 @@ export default function Shop() {
 
           {/* Loading Skeletons */}
           {loading && (
-            <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2.5 min-[480px]:gap-3 sm:gap-5 lg:grid-cols-4">
               {Array.from({ length: 8 }).map((_, index) => (
                 <div key={index} className="animate-pulse p-3 rounded-2xl border" style={{ backgroundColor: currentTheme.card, borderColor: currentTheme.border }}>
                   <div className="aspect-[4/5] rounded-xl opacity-20 bg-current" />
@@ -545,7 +571,7 @@ export default function Shop() {
           {/* Product Grid */}
           {!loading && !error && paginatedProducts.length > 0 && (
             <>
-              <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-2.5 min-[480px]:gap-3 sm:gap-5 lg:grid-cols-4">
                 {paginatedProducts.map((product, index) => {
                   const image = getImage(product);
                   const title = product.title ?? product.name ?? "Untitled product";
@@ -734,11 +760,11 @@ export default function Shop() {
         return (
           <div 
             onClick={handleCloseModal}
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/85 backdrop-blur-md p-0 sm:p-4 overflow-y-auto"
+            className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-black/85 p-0 backdrop-blur-md sm:items-center sm:p-4"
           >
             <div 
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-4xl rounded-t-3xl sm:rounded-2xl border shadow-2xl max-h-[90vh] sm:max-h-[85vh] flex flex-col overflow-hidden transition-colors duration-300"
+              className="relative flex max-h-[94dvh] w-full max-w-4xl flex-col overflow-hidden rounded-t-3xl border shadow-2xl transition-colors duration-300 sm:max-h-[88vh] sm:rounded-2xl"
               style={{ backgroundColor: currentTheme.card, borderColor: currentTheme.border }}
             >
               <div className="flex items-center justify-between border-b px-4 sm:px-6 py-3.5 sm:py-4 shrink-0" style={{ borderColor: currentTheme.border }}>
@@ -935,6 +961,20 @@ export default function Shop() {
         .delay-700 { animation-delay: 700ms; }
         .delay-900 { animation-delay: 900ms; }
         .delay-1000 { animation-delay: 1000ms; }
+
+        @media (max-width: 639px) {
+          #shop-products { scroll-margin-top: 76px; }
+          button, a, select { -webkit-tap-highlight-color: transparent; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          *, *::before, *::after {
+            scroll-behavior: auto !important;
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
       `}</style>
     </div>
   );
