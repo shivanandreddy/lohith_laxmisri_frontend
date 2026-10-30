@@ -49,7 +49,7 @@ export default function HeroBanner({ currentTheme }) {
             </p>
             <a
               href="#shop-products"
-              className="group mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-extrabold tracking-wide shadow-lg transition duration-300 hover:-translate-y-0.5 hover:brightness-110 sm:mt-7 sm:px-7 sm:text-sm"
+              className="group mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-extrabold tracking-wide shadow-lg transition duration-300 hover:-translate-y-0.5 hover:brightness-250 sm:mt-7 sm:px-7 sm:text-sm"
               style={{ backgroundColor: currentTheme.accent, color: "#000000" }}
             >
               EXPLORE COLLECTION

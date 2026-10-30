@@ -23,52 +23,54 @@ export default function CategoryView({
   return (
     <section className="mx-auto w-full max-w-7xl px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
       {/* Top Header with Back Button */}
-      <div 
-  className="mb-6 grid grid-cols-1 sm:grid-cols-3 items-center gap-4 border-b pb-4" 
+     <div 
+  className="mb-6 flex flex-col gap-3 pb-4 border-b sm:flex-row sm:items-center sm:justify-between" 
   style={{ borderColor: currentTheme.border }}
 >
-  {/* Left: Back Button */}
-  <div className="flex items-center justify-start">
+  {/* Mobile Top Bar / Desktop Left & Right Wrappers */}
+  <div className="flex items-center justify-between gap-2 sm:contents">
+    
+    {/* Back Button */}
     <button
       type="button"
       onClick={onBack}
-      className="inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-xs font-bold transition hover:opacity-80 shadow-sm"
-      style={{ borderColor: currentTheme.border, color: currentTheme.accent }}
+      className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-bold transition hover:opacity-80 shadow-sm shrink-0"
+      style={{ borderColor: currentTheme.border, color: currentTheme.accent, backgroundColor: currentTheme.card }}
     >
-      <ArrowLeft size={16} />
-      Back to Categories
+      <ArrowLeft size={14} />
+      <span>Back</span>
     </button>
+
+    {/* Sort Dropdown */}
+    <div className="flex items-center sm:order-3">
+      <label 
+        className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 shadow-sm cursor-pointer" 
+        style={{ borderColor: currentTheme.border, backgroundColor: currentTheme.card }}
+      >
+        <SlidersHorizontal size={13} style={{ color: currentTheme.accent }} />
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="bg-transparent text-[11px] sm:text-xs font-medium outline-none cursor-pointer"
+          style={{ color: currentTheme.text }}
+        >
+          <option value="featured" style={{ backgroundColor: currentTheme.card }}>Featured First</option>
+          <option value="price-low" style={{ backgroundColor: currentTheme.card }}>Price: Low to High</option>
+          <option value="price-high" style={{ backgroundColor: currentTheme.card }}>Price: High to Low</option>
+          <option value="name" style={{ backgroundColor: currentTheme.card }}>Name: A to Z</option>
+        </select>
+      </label>
+    </div>
   </div>
 
   {/* Center: Title Header */}
-  <div className="text-center">
-    <span className="block text-[10px] font-bold uppercase tracking-widest opacity-70" style={{ color: currentTheme.text }}>
-      Collection Showcase
+  <div className="text-center sm:order-2 sm:px-4">
+    <span className="block text-[13px] font-bold uppercase tracking-[0.25em] opacity-60" style={{ color: currentTheme.text }}>
+      ✦ COLLECTION SHOWCASE ✦
     </span>
-    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-amber-500">
+    <h2 className="mt-0.5 text-base sm:text-md font-black tracking-tight text-amber-300 uppercase break-words">
       {selectedCategory}
     </h2>
-  </div>
-
-  {/* Right: Sort Dropdown */}
-  <div className="flex items-center justify-end">
-    <label 
-      className="flex items-center gap-1.5 rounded-xl border px-3 py-1.5 sm:py-2 shadow-sm" 
-      style={{ borderColor: currentTheme.border }}
-    >
-      <SlidersHorizontal size={14} style={{ color: currentTheme.accent }} />
-      <select
-        value={sort}
-        onChange={(e) => setSort(e.target.value)}
-        className="bg-transparent text-xs outline-none cursor-pointer"
-        style={{ color: currentTheme.text }}
-      >
-        <option value="featured" style={{ backgroundColor: currentTheme.card }}>Featured First</option>
-        <option value="price-low" style={{ backgroundColor: currentTheme.card }}>Price: Low to High</option>
-        <option value="price-high" style={{ backgroundColor: currentTheme.card }}>Price: High to Low</option>
-        <option value="name" style={{ backgroundColor: currentTheme.card }}>Name: A to Z</option>
-      </select>
-    </label>
   </div>
 </div>
 
