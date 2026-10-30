@@ -25,11 +25,11 @@ const CategoryCollectionShowcase = ({
       
       {/* Header */}
       <div className="text-center mb-10">
-        <h2 className="text-3xl font-serif text-[#d4af37] tracking-widest mb-1">
-          Signature Hexagon Mosaic
+        <h2 className="text-3xl font-serif text-[#d4af37] tracking-widest mb-1 font-bold">
+          Handpicked Just for You
         </h2>
         <p className="text-xs uppercase tracking-[0.3em] text-[#d4af37]/70 font-serif">
-          Interactive Gallery Showcase
+          ✦ Exclusive Curated Masterpieces ✦
         </p>
       </div>
 
