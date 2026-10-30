@@ -29,13 +29,12 @@ const ITEMS_PER_PAGE = 8;
 // MANUALLY CONFIGURE YOUR STATIC CATEGORIES & IMAGES HERE
 const STATIC_CATEGORIES = [
   { name: "All", image: "/cat_all.webp" },
-   { name: "Necklaces", image: "/cat_necklace.webp" },
-   { name: "Bangles", image: "/cat_bangles.webp" },   
-    { name: "Earrings", image: "/cat_jhumkas.webp" },  
-     { name: "Rings", image: "/cat_rings.webp" },    // Place necklace.png in your public folder
-  { name: "Mangalsutra", image: "/cat_ms.webp" },       // Place chokers.png in your public folder
+  { name: "Necklaces", image: "/cat_necklace.webp" },
+  { name: "Bangles", image: "/cat_bangles.webp" },   
+  { name: "Earrings", image: "/cat_jhumkas.webp" },  
+  { name: "Rings", image: "/cat_rings.webp" },    
+  { name: "Mangalsutra", image: "/cat_ms.webp" },       
   { name: "Combo Sets", image: "/cat_cs.webp" },
-          // Place harams.png in your public folder
 ];
 
 const getImage = (product) => {
@@ -112,6 +111,9 @@ export default function Shop() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
+  // State for the standalone gallery carousel above footer
+  const [footerGalleryIndex, setFooterGalleryIndex] = useState(0);
+
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -143,6 +145,36 @@ export default function Shop() {
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+
+// Extract all product images for the gallery carousel above footer safely
+  // Extract all product images for the gallery carousel above footer safely
+  const allProductImages = useMemo(() => {
+    const list = [];
+    products.forEach((prod) => {
+      // 1. Add images from the array if present
+      if (Array.isArray(prod.images) && prod.images.length > 0) {
+        prod.images.forEach((imgUrl) => {
+          if (typeof imgUrl === "string" && imgUrl.trim() !== "") {
+            list.push({ 
+              url: imgUrl.trim(), 
+              title: prod.title ?? prod.name ?? "Exquisite Jewelry" 
+            });
+          }
+        });
+      } 
+      // 2. Fallback to single image / imageUrl / thumbnail if images array is empty
+      else {
+        const singleImg = getImage(prod);
+        if (singleImg) {
+          list.push({ 
+            url: singleImg, 
+            title: prod.title ?? prod.name ?? "Exquisite Jewelry" 
+          });
+        }
+      }
+    });
+    return list;
+  }, [products]);
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -230,14 +262,14 @@ export default function Shop() {
             <img 
               src="/logo.png"
               alt="Laxmi Sri Art Jewellers Logo" 
-              className="h-9 w-auto max-w-[42px] object-contain transition-transform duration-300 group-hover:scale-105 sm:h-12 sm:max-w-none"
+              className="h-12 sm:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
             />
             <div className="flex flex-col">
-              <span className="max-w-[145px] truncate text-[12px] font-black sm:max-w-none sm:text-xl" style={{ color: currentTheme.text }}>
-                Laxmi Sri Art Jewellers
+              <span className="truncate text-sm sm:text-2xl font-serif font-extrabold tracking-wider uppercase text-amber-300">
+                LAXMI SRI
               </span>
-              <span className="hidden sm:block text-[10px] font-bold tracking-[0.25em] uppercase mt-0.5" style={{ color: currentTheme.muted }}>
-                Boutique & Diamond Collection
+              <span className="hidden sm:block text-[9px] font-semibold tracking-[0.35em] uppercase mt-0.5" style={{ color: currentTheme.muted }}>
+                ✦ ART JEWELLERS ✦
               </span>
             </div>
           </a>
@@ -690,6 +722,100 @@ export default function Shop() {
             </>
           )}
         </section>
+
+        {/* STANDALONE ALL-PRODUCTS IMAGE CAROUSEL (POSITIONED DIRECTLY ABOVE FOOTER) */}
+        {!loading && allProductImages.length > 0 && (
+          <section className="mx-auto max-w-7xl px-3 py-10 sm:px-6 sm:py-14">
+            <div className="mb-6 text-center">
+              <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em]" style={{ color: currentTheme.accent }}>
+                ✦ Masterpiece Showcase ✦
+              </p>
+              <h3 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight">
+                Explore All Collection Gallery
+              </h3>
+            </div>
+
+            <div 
+              className="relative overflow-hidden rounded-3xl border shadow-2xl max-w-5xl mx-auto"
+              style={{ backgroundColor: currentTheme.card, borderColor: currentTheme.border }}
+            >
+              <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden bg-black/40 group">
+                <div 
+                  className="flex h-full w-full transition-transform duration-700 ease-out"
+                  style={{ transform: `translateX(-${footerGalleryIndex * 100}%)` }}
+                >
+                  {allProductImages.map((item, idx) => (
+                    <div key={idx} className="relative h-full w-full shrink-0 grow-0 flex items-center justify-center">
+                      <LoadedImage
+                        src={item.url}
+                        alt={item.title}
+                        containerClassName="h-full w-full"
+                        className="h-full w-full object-cover filter brightness-95"
+                        accentColor={currentTheme.accent}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6 sm:p-8">
+                        <span className="text-sm sm:text-lg font-bold text-white drop-shadow-md">
+                          {item.title}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Carousel Controllers */}
+                {allProductImages.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setFooterGalleryIndex((prev) => (prev === 0 ? allProductImages.length - 1 : prev - 1))}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full p-2.5 bg-black/60 text-white backdrop-blur-md opacity-70 group-hover:opacity-100 transition hover:bg-black/80"
+                      aria-label="Previous gallery image"
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFooterGalleryIndex((prev) => (prev === allProductImages.length - 1 ? 0 : prev + 1))}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2.5 bg-black/60 text-white backdrop-blur-md opacity-70 group-hover:opacity-100 transition hover:bg-black/80"
+                      aria-label="Next gallery image"
+                    >
+                      <ChevronRight size={20} />
+                    </button>
+
+                    <div className="absolute top-4 right-4 rounded-full bg-black/60 px-3 py-1 text-xs font-bold backdrop-blur-md text-white border border-white/10">
+                      {footerGalleryIndex + 1} / {allProductImages.length}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Gallery Thumbnails */}
+              {allProductImages.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto p-4 scrollbar-none justify-center bg-black/20">
+                  {allProductImages.map((item, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setFooterGalleryIndex(idx)}
+                      className={`relative h-12 w-12 sm:h-14 sm:w-14 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-300 ${
+                        footerGalleryIndex === idx ? "scale-105 shadow-md ring-2 ring-offset-1" : "opacity-50 hover:opacity-100"
+                      }`}
+                      style={{ borderColor: footerGalleryIndex === idx ? currentTheme.accent : currentTheme.border }}
+                    >
+                      <LoadedImage
+                        src={item.url}
+                        alt=""
+                        containerClassName="h-full w-full"
+                        className="h-full w-full object-cover"
+                        accentColor={currentTheme.accent}
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
       </main>
 
       {/* FOOTER */}
@@ -747,12 +873,11 @@ export default function Shop() {
         </div>
       </footer>
 
-      {/* PRODUCT DETAILS MODAL */}
+      {/* PRODUCT DETAILS MODAL WITH CAROUSEL */}
       {selectedProduct && (() => {
         const productImages = Array.isArray(selectedProduct.images) && selectedProduct.images.length > 0
           ? selectedProduct.images
           : [getImage(selectedProduct)].filter(Boolean);
-        const currentImg = productImages[activeImageIndex] || productImages[0];
         const prodPrice = getPrice(selectedProduct);
         const prodTitle = selectedProduct.title ?? selectedProduct.name ?? "Product Details";
         const prodCategory = typeof selectedProduct.category === "object" ? selectedProduct.category?.name : selectedProduct.category;
@@ -787,15 +912,56 @@ export default function Shop() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-6 overflow-y-auto flex-1">
+                {/* PRODUCT IMAGES CAROUSEL SECTION */}
                 <div className="flex flex-col gap-3">
-                  <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-black/20 border" style={{ borderColor: currentTheme.border }}>
-                    <LoadedImage
-                      src={currentImg}
-                      alt={prodTitle}
-                      containerClassName="h-full w-full"
-                      className="h-full w-full object-cover"
-                      accentColor={currentTheme.accent}
-                    />
+                  <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-black/20 border group" style={{ borderColor: currentTheme.border }}>
+                    <div 
+                      className="flex h-full w-full transition-transform duration-500 ease-out"
+                      style={{ transform: `translateX(-${activeImageIndex * 100}%)` }}
+                    >
+                      {productImages.map((img, idx) => (
+                        <div key={idx} className="h-full w-full shrink-0 grow-0">
+                          <LoadedImage
+                            src={img}
+                            alt={`${prodTitle} - Slide ${idx + 1}`}
+                            containerClassName="h-full w-full"
+                            className="h-full w-full object-cover"
+                            accentColor={currentTheme.accent}
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    {productImages.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveImageIndex((prev) => (prev === 0 ? productImages.length - 1 : prev - 1));
+                          }}
+                          className="absolute left-2.5 top-1/2 -translate-y-1/2 rounded-full p-2 bg-black/50 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                          aria-label="Previous slide"
+                        >
+                          <ChevronLeft size={18} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveImageIndex((prev) => (prev === productImages.length - 1 ? 0 : prev + 1));
+                          }}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-2 bg-black/50 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                          aria-label="Next slide"
+                        >
+                          <ChevronRight size={18} />
+                        </button>
+
+                        <div className="absolute bottom-3 right-3 rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-bold backdrop-blur-md text-white border border-white/10">
+                          {activeImageIndex + 1} / {productImages.length}
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   {productImages.length > 1 && (
@@ -805,14 +971,14 @@ export default function Shop() {
                           key={idx}
                           type="button"
                           onClick={() => setActiveImageIndex(idx)}
-                          className={`relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-xl border-2 transition ${
-                            activeImageIndex === idx ? "scale-95" : "opacity-70 hover:opacity-100"
+                          className={`relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-300 ${
+                            activeImageIndex === idx ? "scale-105 shadow-md" : "opacity-60 hover:opacity-100"
                           }`}
-                          style={{ borderColor: activeImageIndex === idx ? currentTheme.accent : "transparent" }}
+                          style={{ borderColor: activeImageIndex === idx ? currentTheme.accent : currentTheme.border }}
                         >
                           <LoadedImage
                             src={img}
-                            alt=""
+                            alt={`Thumbnail ${idx + 1}`}
                             containerClassName="h-full w-full"
                             className="h-full w-full object-cover"
                             accentColor={currentTheme.accent}
