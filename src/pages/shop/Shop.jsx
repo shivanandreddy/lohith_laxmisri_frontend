@@ -242,7 +242,7 @@ export default function Shop() {
         )}
       </main>
 
-      <footer className="border-t transition-colors duration-300" style={{ backgroundColor: currentTheme.surface, borderColor: currentTheme.border }}>
+      <footer className="border-t transition-colors duration-300" style={{  borderColor: currentTheme.border }}>
         <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 sm:px-8">
           <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-4">
             <div className="space-y-3 md:col-span-1">

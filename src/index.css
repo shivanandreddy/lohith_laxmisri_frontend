@@ -1,4 +1,14 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:wght@600;700&display=swap');
 @import "tailwindcss";
+
+.font-brand {
+ font-family: "IM Fell English SC", serif;
+}
+
+.font-subbrand {
+  font-family: 'Cormorant Garamond', serif;
+}
 
 *,
 *::before,

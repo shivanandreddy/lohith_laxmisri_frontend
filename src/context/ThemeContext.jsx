@@ -174,7 +174,7 @@ export const THEMES = [
   {
     id: "executive-gold",
     name: "Executive Gold & Onyx",
-    bg: "#ecdada",
+    bg: "#fcf7f7",
     surface: "#1c1c1c",
     card: "#141414",
     border: "#3d3d3d",

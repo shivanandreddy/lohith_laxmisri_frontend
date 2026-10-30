@@ -23,42 +23,54 @@ export default function CategoryView({
   return (
     <section className="mx-auto w-full max-w-7xl px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
       {/* Top Header with Back Button */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4" style={{ borderColor: currentTheme.border }}>
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={onBack}
-            className="inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-xs font-bold transition hover:opacity-80 shadow-sm"
-            style={{  borderColor: currentTheme.border, color: currentTheme.accent }}
-          >
-            <ArrowLeft size={16} />
-            Back to Categories
-          </button>
-          <div className="text-center">
-            <span className="text-[10px] font-bold uppercase tracking-widest opacity-70">Collection Showcase</span>
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-amber-500" >
-              {selectedCategory}
-            </h2>
-          </div>
-        </div>
+      <div 
+  className="mb-6 grid grid-cols-1 sm:grid-cols-3 items-center gap-4 border-b pb-4" 
+  style={{ borderColor: currentTheme.border }}
+>
+  {/* Left: Back Button */}
+  <div className="flex items-center justify-start">
+    <button
+      type="button"
+      onClick={onBack}
+      className="inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-xs font-bold transition hover:opacity-80 shadow-sm"
+      style={{ borderColor: currentTheme.border, color: currentTheme.accent }}
+    >
+      <ArrowLeft size={16} />
+      Back to Categories
+    </button>
+  </div>
 
-        <div className="flex items-center gap-2">
-          <label className="flex items-center gap-1.5 rounded-xl border px-3 py-1.5 sm:py-2 shadow-sm" style={{  borderColor: currentTheme.border }}>
-            <SlidersHorizontal size={14} style={{ color: currentTheme.accent }} />
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="bg-transparent text-xs outline-none cursor-pointer"
-              style={{ color: currentTheme.text }}
-            >
-              <option value="featured" style={{ backgroundColor: currentTheme.card }}>Featured First</option>
-              <option value="price-low" style={{ backgroundColor: currentTheme.card }}>Price: Low to High</option>
-              <option value="price-high" style={{ backgroundColor: currentTheme.card }}>Price: High to Low</option>
-              <option value="name" style={{ backgroundColor: currentTheme.card }}>Name: A to Z</option>
-            </select>
-          </label>
-        </div>
-      </div>
+  {/* Center: Title Header */}
+  <div className="text-center">
+    <span className="block text-[10px] font-bold uppercase tracking-widest opacity-70" style={{ color: currentTheme.text }}>
+      Collection Showcase
+    </span>
+    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-amber-500">
+      {selectedCategory}
+    </h2>
+  </div>
+
+  {/* Right: Sort Dropdown */}
+  <div className="flex items-center justify-end">
+    <label 
+      className="flex items-center gap-1.5 rounded-xl border px-3 py-1.5 sm:py-2 shadow-sm" 
+      style={{ borderColor: currentTheme.border }}
+    >
+      <SlidersHorizontal size={14} style={{ color: currentTheme.accent }} />
+      <select
+        value={sort}
+        onChange={(e) => setSort(e.target.value)}
+        className="bg-transparent text-xs outline-none cursor-pointer"
+        style={{ color: currentTheme.text }}
+      >
+        <option value="featured" style={{ backgroundColor: currentTheme.card }}>Featured First</option>
+        <option value="price-low" style={{ backgroundColor: currentTheme.card }}>Price: Low to High</option>
+        <option value="price-high" style={{ backgroundColor: currentTheme.card }}>Price: High to Low</option>
+        <option value="name" style={{ backgroundColor: currentTheme.card }}>Name: A to Z</option>
+      </select>
+    </label>
+  </div>
+</div>
 
       {/* Error State */}
       {error && (
