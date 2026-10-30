@@ -253,11 +253,11 @@ export function ThemeProvider({ children }) {
     return THEMES.find((t) => t.id === saved) || THEMES[0];
   });
 
-  // Fetch saved global theme from MongoDB user document on initial mount
+  // Fetch saved global theme from public MongoDB endpoint on initial mount (works for all devices & guests)
   const fetchBackendTheme = useCallback(async () => {
     try {
-      const response = await api.get("/auth/theme");
-      const themeId = response.data?.themeId || response.data?.themePreference;
+      const response = await api.get("/auth/theme/public");
+      const themeId = response.data?.themePreference;
       if (themeId) {
         const found = THEMES.find((t) => t.id === themeId);
         if (found) {
@@ -286,7 +286,7 @@ export function ThemeProvider({ children }) {
     root.style.setProperty("--jira-accent", currentTheme.accent);
   }, [currentTheme]);
 
-  // Set local state, update localStorage, and persist setting to MongoDB user document database
+  // Set local state, update localStorage, and persist setting to MongoDB database (Admin only)
   const setTheme = async (themeId) => {
     const found = THEMES.find((t) => t.id === themeId);
     if (!found) return;
