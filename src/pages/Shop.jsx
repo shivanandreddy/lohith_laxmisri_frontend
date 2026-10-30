@@ -429,7 +429,7 @@ export default function Shop() {
               <h2 className="mt-1 text-xl sm:text-3xl font-black tracking-tight">
                 Exclusive Jewelry Gallery
               </h2>
-              <p className="mt-0.5 text-xs opacity-70">
+              <p className="mt-0.5 text-xs opacity-80 text-black text-bold">
                 {loading ? "Loading products..." : `Showing ${filteredProducts.length} luxury items`}
               </p>
             </div>

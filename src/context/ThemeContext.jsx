@@ -174,21 +174,21 @@ export const THEMES = [
   {
     id: "executive-gold",
     name: "Executive Gold & Onyx",
-    bg: "#111111",
+    bg: "#ecdada",
     surface: "#1c1c1c",
-    card: "#252525",
+    card: "#141414",
     border: "#3d3d3d",
-    text: "#f4f4f4",
-    muted: "#c2a64e",
-    accent: "#d4af37",
-    gradient: "from-amber-400 to-yellow-600"
+    text: "#aa891c",
+    muted: "#e4e1d6",
+    accent: "#ad9440",
+    gradient: "from-amber-600 to-yellow-600"
   },
   {
     id: "cyberpunk-ops",
     name: "Cyberpunk Terminal",
     bg: "#0d0208",
     surface: "#190314",
-    card: "#25051e",
+    card: "#af0b8c",
     border: "#4a0a3c",
     text: "#00ffcc",
     muted: "#ff007f",
