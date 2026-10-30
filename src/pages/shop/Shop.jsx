@@ -9,6 +9,7 @@ import HeroBanner from "./HeroBanner";
 import ProductGrid from "./ProductGrid";
 import CategoryView from "./CategoryView";
 import ProductModal from "./ProductModal";
+import CategoryCollectionShowcase from "./CategoryCollectionShowcase"; // <--- Imported Hexagon Mosaic Component
 
 const ITEMS_PER_PAGE = 8;
 
@@ -110,7 +111,7 @@ export default function Shop() {
     return Object.entries(categoriesMap).map(([name, images]) => ({
       name,
       subtitle: `Our Exclusive ${name} Collection`,
-      images: images.slice(0, 4),
+      images: images,
     })).filter((cat) => cat.images.length > 0);
   }, [products]);
 
@@ -226,47 +227,14 @@ export default function Shop() {
           />
         )}
 
-        {/* CATEGORY COLLECTION SHOWCASE SECTION (ONLY IMAGES) */}
+        {/* HEXAGON MOSAIC SHOWCASE SECTION (Replaced old 4-card list) */}
         {!loading && categoryShowcases.length > 0 && (
-          <section className="mx-auto max-w-7xl px-3 py-10 sm:px-6 sm:py-14 space-y-12">
-            {categoryShowcases.map((cat, catIdx) => (
-              <div 
-                key={cat.name || catIdx} 
-                className="w-full bg-[#1c382f] py-8 px-4 sm:px-6 lg:px-8 rounded-2xl shadow-2xl border border-amber-500/20"
-              >
-                {/* Showcase Header */}
-                <div className="text-center mb-6 sm:mb-8">
-                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif text-[#d4af37] tracking-wider mb-1">
-                    {cat.name} Collection
-                  </h2>
-                  <p className="text-xs sm:text-sm font-serif text-[#d4af37]/80 tracking-widest uppercase">
-                    {cat.subtitle}
-                  </p>
-                </div>
-
-                {/* 4 Image Cards Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                  {cat.images.map((imgUrl, imgIdx) => (
-                    <div
-                      key={imgIdx}
-                      onClick={() => setSelectedCategory(cat.name)}
-                      className="group cursor-pointer bg-white rounded-xl p-2 sm:p-2.5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-                    >
-                      <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
-                        <LoadedImage
-                          src={imgUrl}
-                          alt={`${cat.name} ${imgIdx + 1}`}
-                          containerClassName="h-full w-full"
-                          className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                          accentColor="#d4af37"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </section>
+          <CategoryCollectionShowcase 
+            categories={categoryShowcases} 
+            onImageClick={(categoryName) => {
+              setSelectedCategory(categoryName);
+            }} 
+          />
         )}
 
         {!loading && allProductImages.length > 0 && (
@@ -319,63 +287,61 @@ export default function Shop() {
       </main>
 
       <footer className="border-t transition-colors duration-300" style={{ borderColor: currentTheme.border }}>
-  <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 sm:px-8">
-    <div className="grid grid-cols-1 gap-8 md:grid-cols-4 lg:gap-12">
-      
-      <div className="space-y-4 sm:space-y-0 md:col-span-2 sm:flex sm:items-start sm:gap-4">
-        {/* Logo Container */}
-        <div className="shrink-0">
-          <img
-            src="/logo.png"
-            alt="Laxmi Sri Art Jewellers Logo" 
-            className="h-20 sm:h-24 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-          />
-        </div>
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 sm:px-8">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-4 lg:gap-12">
+            
+            <div className="space-y-4 sm:space-y-0 md:col-span-2 sm:flex sm:items-start sm:gap-4">
+              <div className="shrink-0">
+                <img
+                  src="/logo.png"
+                  alt="Laxmi Sri Art Jewellers Logo" 
+                  className="h-20 sm:h-24 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
 
-        {/* Text Content */}
-        <div className="space-y-1.5 mt-3 sm:mt-0">
-          <span className="text-sm sm:text-base font-black tracking-wider uppercase font-serif" style={{ color: currentTheme.accent }}>
-            Laxmi Sri Art Jewellers
-          </span>
-          <p className="text-xs leading-relaxed opacity-70 text-black">
-            Crafting timeless elegance with premium diamond collections, gemstone chokers, and handcrafted luxury designs.
-          </p>
-        </div>
-      </div>
+              <div className="space-y-1.5 mt-3 sm:mt-0">
+                <span className="text-sm sm:text-base font-black tracking-wider uppercase font-serif" style={{ color: currentTheme.accent }}>
+                  Laxmi Sri Art Jewellers
+                </span>
+                <p className="text-xs leading-relaxed opacity-70 text-black">
+                  Crafting timeless elegance with premium diamond collections, gemstone chokers, and handcrafted luxury designs.
+                </p>
+              </div>
+            </div>
 
-      <div>
-        <h4 className="text-xs font-bold uppercase tracking-wider mb-3 sm:mb-4">Quick Links</h4>
-        <ul className="space-y-2 text-xs opacity-70">
-          <li><a href="#" className="transition hover:opacity-100 text-black">Shop All Collections</a></li>
-          <li><a href="#shop-products" className="transition hover:opacity-100 text-black">Diamond Chokers</a></li>
-          <li><a href="#shop-products" className="transition hover:opacity-100 text-black">Gemstone Harams</a></li>
-        </ul>
-      </div>
-      
-      <div className="space-y-2.5">
-        <h4 className="text-xs font-bold uppercase tracking-wider mb-3 sm:mb-4">Contact Boutique</h4>
-        <div className="flex items-start gap-2 text-xs opacity-70">
-          <MapPin size={15} style={{ color: currentTheme.accent }} className="shrink-0 mt-0.5" />
-          <span className="text-black">Boutique Hub, Main Bazaar, Hyderabad</span>
-        </div>
-        <div className="flex items-center gap-2 text-xs opacity-70">
-          <Phone size={15} style={{ color: currentTheme.accent }} className="shrink-0" />
-          <span className="text-black">+91 98765 43210</span>
-        </div>
-        <div className="flex items-center gap-2 text-xs opacity-70">
-          <Mail size={15} style={{ color: currentTheme.accent }} className="shrink-0" />
-          <span className="text-black">support@laxmisrijewels.com</span>
-        </div>
-      </div>
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider mb-3 sm:mb-4">Quick Links</h4>
+              <ul className="space-y-2 text-xs opacity-70">
+                <li><a href="#" className="transition hover:opacity-100 text-black">Shop All Collections</a></li>
+                <li><a href="#shop-products" className="transition hover:opacity-100 text-black">Diamond Chokers</a></li>
+                <li><a href="#shop-products" className="transition hover:opacity-100 text-black">Gemstone Harams</a></li>
+              </ul>
+            </div>
+            
+            <div className="space-y-2.5">
+              <h4 className="text-xs font-bold uppercase tracking-wider mb-3 sm:mb-4">Contact Boutique</h4>
+              <div className="flex items-start gap-2 text-xs opacity-70">
+                <MapPin size={15} style={{ color: currentTheme.accent }} className="shrink-0 mt-0.5" />
+                <span className="text-black">Boutique Hub, Main Bazaar, Hyderabad</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs opacity-70">
+                <Phone size={15} style={{ color: currentTheme.accent }} className="shrink-0" />
+                <span className="text-black">+91 98765 43210</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs opacity-70">
+                <Mail size={15} style={{ color: currentTheme.accent }} className="shrink-0" />
+                <span className="text-black">support@laxmisrijewels.com</span>
+              </div>
+            </div>
 
-    </div>
+          </div>
 
-    <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-3 border-t pt-5 text-xs opacity-60 text-black" style={{ borderColor: currentTheme.border }}>
-      <p>© {new Date().getFullYear()} Laxmi Sri Art Jewellers. All rights reserved.</p>
-      <p className="flex items-center gap-1">Built with <Heart size={12} style={{ color: currentTheme.accent, fill: currentTheme.accent }} /> for High-End Connoisseurs</p>
-    </div>
-  </div>
-</footer>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-3 border-t pt-5 text-xs opacity-60 text-black" style={{ borderColor: currentTheme.border }}>
+            <p>© {new Date().getFullYear()} Laxmi Sri Art Jewellers. All rights reserved.</p>
+            <p className="flex items-center gap-1">Built with <Heart size={12} style={{ color: currentTheme.accent, fill: currentTheme.accent }} /> for High-End Connoisseurs</p>
+          </div>
+        </div>
+      </footer>
 
       <ProductModal
         selectedProduct={selectedProduct}

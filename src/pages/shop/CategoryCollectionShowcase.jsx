@@ -1,50 +1,119 @@
 import React from 'react';
 
 const CategoryCollectionShowcase = ({ 
-  categories = [], // Array of categories, e.g., [{ name: "Earrings", subtitle: "Our Exclusive Earring Collection", images: [...] }]
+  categories = [], 
   onImageClick 
 }) => {
+  // 1. Gather all available images (either from cat.images array or fallback to cat.image/thumbnail)
+  const items = categories.flatMap(cat => {
+    const imgList = Array.isArray(cat.images) && cat.images.length > 0 
+      ? cat.images 
+      : [cat.image, cat.thumbnail].filter(Boolean);
+
+    return imgList.map(img => ({
+      url: typeof img === 'string' ? img : img?.url,
+      name: cat.name,
+      subtitle: cat.subtitle
+    }));
+  }).filter(item => item.url).slice(0, 14); // Limit to 14 items for a clean mosaic shape
+
+  // If no images exist anywhere, don't break
+  if (items.length === 0) return null;
+
   return (
-    <div className="w-full space-y-12">
-      {categories.map((cat, catIndex) => (
-        <section 
-          key={cat.name || catIndex} 
-          className="w-full bg-[#1c382f] py-10 px-4 sm:px-6 lg:px-8 rounded-2xl shadow-xl"
-        >
-          <div className="max-w-7xl mx-auto">
-            
-            {/* Header Section */}
-            <div className="text-center mb-8 sm:mb-10">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif text-[#d4af37] tracking-wider mb-2">
-                {cat.name} Collection
-              </h2>
-              <p className="text-xs sm:text-sm font-serif text-[#d4af37]/80 tracking-widest uppercase">
-                {cat.subtitle || `Our Exclusive ${cat.name} Collection`}
-              </p>
-            </div>
+    <div className="w-full py-12 px-4 flex flex-col items-center justify-center overflow-hidden">
+      
+      {/* Header */}
+      <div className="text-center mb-10">
+        <h2 className="text-3xl font-serif text-[#d4af37] tracking-widest mb-1">
+          Signature Hexagon Mosaic
+        </h2>
+        <p className="text-xs uppercase tracking-[0.3em] text-[#d4af37]/70 font-serif">
+          Interactive Gallery Showcase
+        </p>
+      </div>
 
-            {/* 4-Card Image Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              {(cat.images || []).slice(0, 4).map((imgUrl, imgIndex) => (
-                <div
-                  key={imgIndex}
-                  onClick={() => onImageClick && onImageClick(cat, imgUrl)}
-                  className="group cursor-pointer bg-white rounded-xl p-2 sm:p-2.5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-                >
-                  <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
-                    <img
-                      src={typeof imgUrl === 'string' ? imgUrl : imgUrl?.url}
-                      alt={`${cat.name} Item ${imgIndex + 1}`}
-                      className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                </div>
-              ))}
+      {/* Honeycomb Grid Container */}
+      <div className="hex-grid-container">
+        {items.map((item, index) => (
+          <div
+            key={index}
+            onClick={() => onImageClick && onImageClick(item.name, item.url)}
+            className="hex-item group cursor-pointer"
+          >
+            <div className="hex-inner">
+              <img
+                src={item.url}
+                alt={item.name || `Collection Item ${index + 1}`}
+                className="hex-image"
+              />
+              {/* Overlay on hover */}
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4 text-center">
+                <span className="text-[10px] font-bold text-[#d4af37] tracking-widest uppercase">
+                  {item.name}
+                </span>
+                <span className="text-xs font-serif text-white mt-1">
+                  {item.subtitle || 'Explore Collection'}
+                </span>
+              </div>
             </div>
-
           </div>
-        </section>
-      ))}
+        ))}
+      </div>
+
+      {/* Embedded Hexagon Layout Styles */}
+      <style>{`
+        .hex-grid-container {
+          display: flex;
+          flex-wrap: wrap;
+          width: 100%;
+          max-width: 1100px;
+          justify-content: center;
+          gap: 12px;
+          padding-bottom: 2rem;
+        }
+
+        .hex-item {
+          position: relative;
+          width: 170px;
+          height: 196px;
+          clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+          transition: transform 0.4s ease, filter 0.4s ease;
+          background-color: #0b3d34;
+        }
+
+        .hex-item:hover {
+          transform: scale(1.08);
+          z-index: 20;
+          filter: brightness(1.15);
+        }
+
+        .hex-inner {
+          position: absolute;
+          inset: 3px; 
+          clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+          overflow: hidden;
+        }
+
+        .hex-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center;
+          transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .hex-item:hover .hex-image {
+          transform: scale(1.15);
+        }
+
+        @media (max-width: 640px) {
+          .hex-item {
+            width: 110px;
+            height: 127px;
+          }
+        }
+      `}</style>
     </div>
   );
 };
