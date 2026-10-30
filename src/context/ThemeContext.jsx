@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import api from "../api/axios";
 
 // 20 Atlassian Jira-Inspired Professional Themes
 export const THEMES = [
@@ -252,10 +253,29 @@ export function ThemeProvider({ children }) {
     return THEMES.find((t) => t.id === saved) || THEMES[0];
   });
 
+  // Fetch saved global theme from MongoDB user document on initial mount
+  const fetchBackendTheme = useCallback(async () => {
+    try {
+      const response = await api.get("/auth/theme");
+      const themeId = response.data?.themeId || response.data?.themePreference;
+      if (themeId) {
+        const found = THEMES.find((t) => t.id === themeId);
+        if (found) {
+          setCurrentTheme(found);
+          localStorage.setItem("jira_app_theme_id", found.id);
+        }
+      }
+    } catch {
+      // Fallback silently to localStorage or default if endpoint is unavailable
+    }
+  }, []);
+
   useEffect(() => {
-    localStorage.setItem("jira_app_theme_id", currentTheme.id);
-    
-    // Inject CSS variables directly onto document root for global usage
+    fetchBackendTheme();
+  }, [fetchBackendTheme]);
+
+  // Inject CSS Variables dynamically into DOM Root
+  useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty("--jira-bg", currentTheme.bg);
     root.style.setProperty("--jira-surface", currentTheme.surface);
@@ -266,9 +286,19 @@ export function ThemeProvider({ children }) {
     root.style.setProperty("--jira-accent", currentTheme.accent);
   }, [currentTheme]);
 
-  const setTheme = (themeId) => {
+  // Set local state, update localStorage, and persist setting to MongoDB user document database
+  const setTheme = async (themeId) => {
     const found = THEMES.find((t) => t.id === themeId);
-    if (found) setCurrentTheme(found);
+    if (!found) return;
+
+    setCurrentTheme(found);
+    localStorage.setItem("jira_app_theme_id", found.id);
+
+    try {
+      await api.put("/auth/theme", { themePreference: found.id });
+    } catch (err) {
+      console.error("Could not sync theme to MongoDB database:", err);
+    }
   };
 
   return (
