@@ -34,9 +34,9 @@ export default function CategoryView({
             <ArrowLeft size={16} />
             Back to Categories
           </button>
-          <div>
+          <div className="text-center">
             <span className="text-[10px] font-bold uppercase tracking-widest opacity-70">Collection Showcase</span>
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight" style={{ color: currentTheme.accent }}>
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-amber-500" >
               {selectedCategory}
             </h2>
           </div>
@@ -147,13 +147,11 @@ export default function CategoryView({
                   </div>
 
                   <div className="pt-2.5 sm:pt-3.5 px-0.5">
-                    <h3 className="truncate text-xs sm:text-sm font-semibold transition-colors group-hover:opacity-80">
+                    <h3 className="truncate text-xs sm:text-sm font-semibold transition-colors  group-hover:opacity-80">
                       {title}
                     </h3>
                     <div className="mt-1 sm:mt-2 flex items-baseline justify-between gap-1">
-                      <p className="text-xs sm:text-base font-black tracking-tight" style={{ color: currentTheme.accent }}>
-                        {formatPrice(price)}
-                      </p>
+                      
                       {product.stock !== undefined && (
                         <span className={`text-[9px] sm:text-[10px] font-semibold ${product.stock > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                           {product.stock > 0 ? `${product.stock} in stock` : 'Sold out'}
