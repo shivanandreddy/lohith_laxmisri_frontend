@@ -190,10 +190,10 @@ export const THEMES = [
     surface: "#190314",
     card: "#af0b8c",
     border: "#4a0a3c",
-    text: "#00ffcc",
+    text: "#0000",
     muted: "#ff007f",
-    accent: "#00ffcc",
-    gradient: "from-emerald-400 to-pink-500"
+    accent: "#00ff",
+    gradient: "from-emerald-400 to-dark-500"
   },
   {
     id: "clean-minimalist",

@@ -7,7 +7,8 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Settings from "./pages/Settings";
-import Shop from "./pages/Shop";
+import Shop from "./pages/shop/Shop";
+import CategoryPageRoute from "./pages/shop/CategoryPageRoute"
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
       {/* Public routes - Shop is now the default landing page */}
       <Route path="/" element={<Shop />} />
       <Route path="/shop" element={<Shop />} />
+      <Route path="/shop/:categoryName" element={<CategoryPageRoute />} />
       <Route path="/login" element={<Login />} />
 
       {/* Protected admin dashboard routes */}
