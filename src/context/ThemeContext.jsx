@@ -242,6 +242,18 @@ export const THEMES = [
     muted: "#838ba1",
     accent: "#8caaee",
     gradient: "from-indigo-500 to-violet-500"
+  },
+  {
+    id: "marigold-luxury",
+    name: "Marigold & Diamonds Signature",
+    bg: "#0B3D34",       // Deep luxury night base
+    surface: "#111827",  // Dark slate surface container
+    card: "#161E2E",     // Rich card container background
+    border: "#D4AF37",   // Marigold / Gold primary border accent
+    text: "#31302C",     // Crisp white/ivory text
+    muted: "#E5C558",    // Soft warm marigold gold muted text
+    accent: " #D4AF37",   // Brilliant Marigold gold highlight
+    gradient: "from-[#D4AF37] via-[#F3E066] to-[#E8B4B8]"
   }
 ];
 

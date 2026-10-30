@@ -24,6 +24,10 @@ import {
 import api from "../api/axios";
 import { useTheme } from "../context/ThemeContext";
 
+// Imports for banner images - replace these with your actual paths
+// import bannerImg from "../assets/banner.png"; // Placeholder path for provided banner image
+// import logoPng from "../assets/logo.png"; // Assuming your logo image is here
+
 const ITEMS_PER_PAGE = 8;
 
 const getImage = (product) => {
@@ -231,7 +235,7 @@ export default function Shop() {
           
           <a href="#" className="flex items-center gap-2.5 sm:gap-3 shrink-0 group">
             <img 
-              src="/logo.png" 
+              src="/logo.png"
               alt="Laxmi Sri Art Jewellers Logo" 
               className="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
             />
@@ -354,41 +358,63 @@ export default function Shop() {
       {/* MAIN CONTAINER */}
       <main className="flex-1">
         
-        {/* HERO BANNER WITH VIDEO */}
+        {/* HERO BANNER SECTION - MODIFIED TO USE PROVIDED BANNER IMAGE */}
         <section className="mx-auto max-w-7xl px-4 pt-4 sm:pt-6 sm:px-8">
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl border" style={{ backgroundColor: currentTheme.card, borderColor: currentTheme.border }}>
-            <div className="relative w-full aspect-[16/9] sm:aspect-[3/1] overflow-hidden flex items-center justify-center">
-              
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="absolute inset-0 h-full w-full object-cover opacity-40 filter brightness-90"
-              >
-                <source 
-                  src="https://assets.mixkit.co/videos/preview/mixkit-hands-wearing-gold-bracelets-and-rings-41583-large.mp4" 
-                  type="video/mp4" 
-                />
-              </video>
-
-              <div className="absolute inset-0" style={{ backgroundColor: `${currentTheme.bg}cc` }} />
-
-              <div className="relative z-10 px-4 py-8 sm:py-16 text-center max-w-3xl mx-auto">
-                <span 
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] mb-3 sm:mb-4 shadow-lg backdrop-blur-md"
-                  style={{ backgroundColor: `${currentTheme.accent}22`, borderColor: `${currentTheme.accent}66`, color: currentTheme.accent }}
-                >
-                  <Sparkles size={13} /> Bridal & Evening Collections
-                </span>
-                <h1 className="text-xl sm:text-5xl font-extrabold tracking-tight leading-tight drop-shadow-md">
-                  Exquisite Diamond & <span style={{ color: currentTheme.accent }}>Gemstone Masterpieces</span>
-                </h1>
-                <p className="mt-2 sm:mt-4 text-[11px] sm:text-sm max-w-lg mx-auto leading-relaxed opacity-90">
-                  Elevate your presence with stunning traditional craftsmanship, hand-cut gemstones, and premier jewelry collections.
-                </p>
-              </div>
+          <div 
+            className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl border aspect-[21/9] sm:aspect-[3/1] animate-fadeIn" 
+            style={{ backgroundColor: currentTheme.card, borderColor: currentTheme.border }}
+          >
+            
+            {/* Entry Animation: Image Fades & Zooms In */}
+            <div className="absolute inset-0 z-0 scale-105 animate-imageEnter">
+              <LoadedImage 
+                src='/banner.png'
+                alt="Elegant woman wearing diamond necklace with gold accent ring" 
+                containerClassName="w-full h-full"
+                className="w-full h-full object-cover"
+                accentColor={currentTheme.accent}
+              />
             </div>
+
+            {/* Content Overlays with delayed animations */}
+            <div className="absolute inset-y-0 right-0 z-10 w-full sm:w-[55%] flex flex-col justify-center items-start px-6 sm:px-12 py-8 bg-gradient-to-l from-black via-black/80 to-transparent">
+              
+              {/* Entry Animation: Logo Slides Up */}
+              <img 
+                src="/logo.png" 
+                alt="Laxmi Sri Art Jewellers Logo" 
+                className="h-12 sm:h-20 w-auto object-contain opacity-0 animate-contentSlideUp delay-300"
+              />
+
+              {/* Entry Animation: Main Text Slides Up */}
+              <h1 className="mt-4 sm:mt-6 text-xl sm:text-4xl font-extrabold tracking-tight leading-tight opacity-0 animate-contentSlideUp delay-500">
+                EMBRACE <span className="font-light italic" style={{ color: currentTheme.accent }}>Your Elegance</span>
+              </h1>
+              
+              {/* Entry Animation: Description Text Slides Up */}
+              <p className="mt-3 sm:mt-5 text-[10px] sm:text-xs max-w-lg leading-relaxed opacity-0 animate-contentSlideUp delay-700 tracking-wider">
+                PREMIUM ARTISTRY, TIMELESS BEAUTY.<br />
+                <span className="opacity-70">ELEVATE YOUR LOOK WITH DIVINE GOLDEN CRAFTSMANSHIP.</span>
+              </p>
+              
+              {/* Entry Animation: Button Slides Up */}
+              <a 
+                href="#shop-products"
+                className="mt-5 sm:mt-8 inline-flex items-center gap-2 rounded-xl px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold shadow-lg transition duration-300 hover:brightness-110 opacity-0 animate-contentSlideUp delay-900 group"
+                style={{ backgroundColor: currentTheme.accent, color: "#000000" }}
+              >
+                SHOP NOW 
+                <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />
+              </a>
+            </div>
+
+            {/* Corner Star Accent */}
+            <Sparkles 
+              className="absolute bottom-4 right-4 z-20 opacity-30 animate-pulse delay-1000" 
+              size={20} 
+              style={{ color: currentTheme.accent }} 
+            />
+
           </div>
         </section>
 
@@ -875,6 +901,40 @@ export default function Shop() {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
+
+        /* BANNER ANIMATIONS */
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes imageEnter {
+          from { opacity: 0; transform: scale(1.15); }
+          to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes contentSlideUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 1s ease-out forwards;
+        }
+
+        .animate-imageEnter {
+          animation: imageEnter 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        .animate-contentSlideUp {
+          animation: contentSlideUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        .delay-300 { animation-delay: 300ms; }
+        .delay-500 { animation-delay: 500ms; }
+        .delay-700 { animation-delay: 700ms; }
+        .delay-900 { animation-delay: 900ms; }
+        .delay-1000 { animation-delay: 1000ms; }
       `}</style>
     </div>
   );

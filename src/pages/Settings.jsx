@@ -26,47 +26,7 @@ export default function Settings() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Profile Details Card */}
-        <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-          <h2 className="text-base font-semibold border-b pb-3 dark:border-slate-800">
-            Profile Information
-          </h2>
-
-          <div>
-            <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-              Full name
-            </label>
-            <input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-slate-700"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
-              Email address
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border border-slate-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-slate-700"
-            />
-          </div>
-
-          <label className="flex items-center gap-3 text-sm cursor-pointer pt-2">
-            <input
-              type="checkbox"
-              checked={notifications}
-              onChange={(e) => setNotifications(e.target.checked)}
-              className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-            />
-            Enable email and system notifications
-          </label>
-        </div>
+      
 
         {/* Theme Customization Card */}
         <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
