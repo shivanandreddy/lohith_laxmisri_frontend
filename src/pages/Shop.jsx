@@ -278,8 +278,8 @@ export default function Shop() {
             </div>
             <div className="space-y-2.5">
               <h4 className="text-xs font-bold uppercase tracking-wider mb-3 sm:mb-4">Contact Boutique</h4>
-              <div className="flex items-start gap-2 text-xs opacity-70"><MapPin size={15} style={{ color: currentTheme.accent }} className="shrink-0 mt-0.5" /><span>Boutique Hub, Main Bazaar, Hyderabad</span></div>
-              <div className="flex items-center gap-2 text-xs opacity-70"><Phone size={15} style={{ color: currentTheme.accent }} className="shrink-0" /><span>+91 98765 43210</span></div>
+              <div className="flex items-start gap-2 text-xs opacity-70"><MapPin size={15} style={{ color: currentTheme.accent }} className="shrink-0 mt-0.5" /><span>5-8-431/1&2, New, Feelkhana Rd, near Santhoshimata Temple, Begum Bazar, Afzal Gunj, Hyderabad, Telangana 500012</span></div>
+              <div className="flex items-center gap-2 text-xs opacity-70"><Phone size={15} style={{ color: currentTheme.accent }} className="shrink-0" /><span>+91 99495 51967</span></div>
               <div className="flex items-center gap-2 text-xs opacity-70"><Mail size={15} style={{ color: currentTheme.accent }} className="shrink-0" /><span>support@laxmisrijewels.com</span></div>
             </div>
           </div>
