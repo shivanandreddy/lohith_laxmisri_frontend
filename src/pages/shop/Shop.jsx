@@ -243,8 +243,8 @@ export default function Shop() {
         {!loading && allProductImages.length > 0 && (
           <section className="mx-auto max-w-7xl px-3 py-10 sm:px-6 sm:py-14">
             <div className="mb-6 text-center">
-              <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em]" style={{ color: currentTheme.accent }}>✦ Masterpiece Showcase ✦</p>
-              <h3 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight">Explore All Collection Gallery</h3>
+              <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em]" >✦ Masterpiece Showcase ✦</p>
+               <h2 className="text-3xl font-serif text-[#d4af37] tracking-widest mb-1 font-bold">Explore All Collection Gallery</h2>
             </div>
 
             <div className="relative overflow-hidden rounded-3xl border shadow-2xl max-w-5xl mx-auto" >
