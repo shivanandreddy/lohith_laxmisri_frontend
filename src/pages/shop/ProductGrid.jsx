@@ -42,13 +42,10 @@ export default function ProductGrid({ currentTheme, loading, error, fetchProduct
                 className="group flex flex-col items-center gap-3 shrink-0 focus:outline-none transition-transform duration-300 hover:scale-105"
               >
                 <div 
-                  className="relative h-28 w-28 sm:h-32 sm:w-32 rounded-full p-1.5 shadow-xl transition-all duration-300 group-hover:ring-4"
-                  style={{ 
-                    border: `2px solid ${currentTheme.accent}`,
-                    backgroundColor: currentTheme.card
-                  }}
+                  className="relative h-28 w-28 sm:h-32 sm:w-32 rounded-full p-1.5 shadow-xl transition-all duration-300 group-hover:ring-4 bg-amber-300 "
+                  
                 >
-                  <div className="h-full w-full overflow-hidden rounded-full bg-black/20">
+                  <div className="h-full w-full overflow-hidden rounded-full bg-amber-300">
                     <LoadedImage
                       src={image}
                       alt={name}
@@ -57,7 +54,7 @@ export default function ProductGrid({ currentTheme, loading, error, fetchProduct
                     />
                   </div>
                 </div>
-                <span className="text-xs sm:text-sm font-extrabold tracking-wide transition-colors" style={{ color: currentTheme.text }}>
+                <span className="text-xs sm:text-sm font-extrabold tracking-wide transition-colors text-amber-350" >
                   {name}
                 </span>
               </button>

@@ -39,7 +39,7 @@ const CategoryCollectionShowcase = ({
           <div
             key={index}
             onClick={() => onImageClick && onImageClick(item.name, item.url)}
-            className="hex-item group cursor-pointer"
+            className="hex-item group cursor-pointer bg-amber-300"
           >
             <div className="hex-inner">
               <img
@@ -79,7 +79,7 @@ const CategoryCollectionShowcase = ({
           height: 196px;
           clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
           transition: transform 0.4s ease, filter 0.4s ease;
-          background-color: #0b3d34;
+          
         }
 
         .hex-item:hover {

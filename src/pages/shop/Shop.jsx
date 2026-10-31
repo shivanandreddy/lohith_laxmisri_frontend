@@ -291,7 +291,7 @@ export default function Shop() {
         <InstagramVideos />
       </main>
 
-      <footer className="border-t transition-colors duration-300" style={{ borderColor: currentTheme.border }}>
+      <footer className="border-t transition-colors duration-300 bg-gray-200" style={{ borderColor: currentTheme.border }}>
         <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12 sm:px-8">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-4 lg:gap-12">
             

@@ -27,8 +27,8 @@ export default function HeroBanner({ currentTheme }) {
                 className="h-10 w-auto max-w-[130px] object-contain drop-shadow-lg sm:h-14 md:h-16"
               />
               <span className="h-8 w-px bg-white/40 sm:h-10" />
-              <span className="text-[9px] font-semibold uppercase leading-relaxed tracking-[0.2em] text-white/80 sm:text-[10px]">
-                Boutique<br />Collection
+              <span className="text-[9px] font-semibold uppercase leading-relaxed tracking-[0.2em] text-amber-300 sm:text-[10px]">
+                JEWWELLRY<br />Collection
               </span>
             </div>
 
