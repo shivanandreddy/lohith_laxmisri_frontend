@@ -52,7 +52,7 @@ export default function InstagramVideos({ videos = [] }) {
       {/* Section Header */}
       <div className="mb-8 text-center">
         <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-          As Seen On Our Feed
+          Follow us on Instagram
         </h2>
 
         <p className="mt-1 text-xs opacity-70">
