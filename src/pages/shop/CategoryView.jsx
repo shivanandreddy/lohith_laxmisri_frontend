@@ -63,9 +63,9 @@ export default function CategoryView({
     </div>
   </div>
 
-  {/* Center: Title Header */}
+  {/* Center: Title Header  "text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em] text-black" */}
   <div className="text-center sm:order-2 sm:px-4">
-    <span className="block text-[13px] font-bold uppercase tracking-[0.25em] opacity-60" style={{ color: currentTheme.text }}>
+    <span className="block text-[11px] font-bold uppercase tracking-[0.25em] text-black">
       ✦ COLLECTION SHOWCASE ✦
     </span>
     <h2 className="mt-0.5 text-base sm:text-md font-black tracking-tight text-amber-300 uppercase break-words">
