@@ -238,6 +238,8 @@ export default function Shop() {
           />
         )}
 
+
+
         {!loading && allProductImages.length > 0 && (
           <section className="mx-auto max-w-7xl px-3 py-10 sm:px-6 sm:py-14">
             <div className="mb-6 text-center">
@@ -245,7 +247,7 @@ export default function Shop() {
               <h3 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight">Explore All Collection Gallery</h3>
             </div>
 
-            <div className="relative overflow-hidden rounded-3xl border shadow-2xl max-w-5xl mx-auto" style={{ backgroundColor: currentTheme.card, borderColor: currentTheme.border }}>
+            <div className="relative overflow-hidden rounded-3xl border shadow-2xl max-w-5xl mx-auto" >
               <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden bg-black/40 group">
                 <div className="flex h-full w-full transition-transform duration-700 ease-out" style={{ transform: `translateX(-${footerGalleryIndex * 100}%)` }}>
                   {allProductImages.map((item, idx) => (
@@ -276,7 +278,7 @@ export default function Shop() {
               {allProductImages.length > 1 && (
                 <div className="flex gap-2 overflow-x-auto p-4 scrollbar-none justify-center bg-black/20">
                   {allProductImages.map((item, idx) => (
-                    <button key={idx} type="button" onClick={() => setFooterGalleryIndex(idx)} className={`relative h-12 w-12 sm:h-14 sm:w-14 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-300 ${footerGalleryIndex === idx ? "scale-105 shadow-md ring-2 ring-offset-1" : "opacity-50 hover:opacity-100"}`} style={{ borderColor: footerGalleryIndex === idx ? currentTheme.accent : currentTheme.border }}>
+                    <button key={idx} type="button" onClick={() => setFooterGalleryIndex(idx)} className={`relative h-12 w-14 sm:h-14 sm:w-14 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-300 ${footerGalleryIndex === idx ? "scale-105 shadow-md ring-2 ring-offset-1" : "opacity-50 hover:opacity-100"}`} style={{ borderColor: footerGalleryIndex === idx ? currentTheme.accent : currentTheme.border }}>
                       <LoadedImage src={item.url} alt="" containerClassName="h-full w-full" className="h-full w-full object-cover" />
                     </button>
                   ))}

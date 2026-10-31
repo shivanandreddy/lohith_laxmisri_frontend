@@ -1,4 +1,3 @@
-
 import { ExternalLink, Film } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 
@@ -47,21 +46,21 @@ export default function InstagramVideos({ videos = [] }) {
   };
 
   return (
-    <section className="mx-auto w-full max-w-7xl px-3 py-10 sm:px-6 sm:py-14">
+    <section className="mx-auto w-full max-w-7xl px-3 py-8 sm:px-6 sm:py-14">
 
       {/* Section Header */}
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+      <div className="mb-6 sm:mb-10 text-center px-2">
+        <h2 className="text-xl sm:text-3xl font-black tracking-tight">
           Follow us on Instagram
         </h2>
 
-        <p className="mt-1 text-xs opacity-70">
+        <p className="mt-1 text-[11px] sm:text-xs opacity-70 max-w-md mx-auto">
           Explore our latest cinematic jewelry showcases and artisan crafting clips.
         </p>
       </div>
 
-      {/* Videos Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Responsive Grid / Touch Carousel on Mobile */}
+      <div className="flex sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 overflow-x-auto pb-4 sm:pb-0 snap-x snap-mandatory scrollbar-none">
 
         {videoList.map((video) => {
           const embedUrl = getInstagramEmbedUrl(video.instagramUrl);
@@ -69,12 +68,12 @@ export default function InstagramVideos({ videos = [] }) {
           return (
             <div
               key={video.id}
-              className="group overflow-hidden rounded-2xl border shadow-xl transition-all duration-300 hover:-translate-y-1"
+              className="group shrink-0 w-[85vw] max-w-[340px] sm:w-auto snap-center overflow-hidden rounded-2xl border shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col"
               
             >
 
-              {/* Instagram Embed */}
-              <div className="relative w-full aspect-[4/5] overflow-hidden bg-black">
+              {/* Instagram Embed Container (Height optimized for 9:16 mobile / 4:5 desktop) */}
+              <div className="relative w-full aspect-[9/16] min-h-[420px] sm:min-h-0 sm:aspect-[4/5] overflow-hidden bg-black/90">
 
                 {embedUrl ? (
                   <iframe
@@ -86,24 +85,27 @@ export default function InstagramVideos({ videos = [] }) {
                     loading="lazy"
                   />
                 ) : (
-                  <div className="flex h-full flex-col items-center justify-center gap-3 text-white">
+                  <div className="flex h-full flex-col items-center justify-center gap-3 text-white p-4">
                     <Film size={36} />
-                    <p className="text-sm">Instagram post unavailable</p>
+                    <p className="text-xs sm:text-sm text-center">Instagram post unavailable</p>
                   </div>
                 )}
 
               </div>
 
               {/* Video Details */}
-              <div className="p-4 flex items-center justify-between gap-3">
+              <div 
+                className="p-3.5 sm:p-4 flex items-center justify-between gap-3 border-t mt-auto"
+                
+              >
 
                 <div className="min-w-0">
                   <h3 className="text-xs sm:text-sm font-bold truncate">
                     {video.title}
                   </h3>
 
-                  <p className="mt-0.5 text-[10px] opacity-70">
-                    ❤️ {video.likes} engagements
+                  <p className="mt-0.5 text-[10px] sm:text-xs opacity-70 flex items-center gap-1">
+                    <span>❤️</span> {video.likes} engagements
                   </p>
                 </div>
 
@@ -112,14 +114,12 @@ export default function InstagramVideos({ videos = [] }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`Open ${video.title} on Instagram`}
-                  className="shrink-0 rounded-xl p-2.5 transition opacity-70 hover:opacity-100"
-                  style={{
-                    backgroundColor: currentTheme.surface
-                  }}
+                  className="shrink-0 rounded-xl p-2 sm:p-2.5 transition opacity-80 hover:opacity-100 active:scale-95"
+                 
                 >
                   <ExternalLink
                     size={16}
-                    style={{ color: currentTheme.accent }}
+                    
                   />
                 </a>
 
