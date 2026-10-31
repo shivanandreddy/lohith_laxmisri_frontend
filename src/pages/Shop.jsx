@@ -229,14 +229,25 @@ export default function Shop() {
               </div>
 
               {allProductImages.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto p-4 scrollbar-none justify-center bg-black/20">
-                  {allProductImages.map((item, idx) => (
-                    <button key={idx} type="button" onClick={() => setFooterGalleryIndex(idx)} className={`relative h-12 w-12 sm:h-14 sm:w-14 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-300 ${footerGalleryIndex === idx ? "scale-105 shadow-md ring-2 ring-offset-1" : "opacity-50 hover:opacity-100"}`} style={{ borderColor: footerGalleryIndex === idx ? currentTheme.accent : currentTheme.border }}>
-                      <LoadedImage src={item.url} alt="" containerClassName="h-full w-full" className="h-full w-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
+  <div className="flex gap-2 overflow-x-auto p-4 scrollbar-none justify-center bg-black/20">
+    {allProductImages.map((item, idx) => (
+      <button 
+        key={idx} 
+        type="button" 
+        onClick={() => setFooterGalleryIndex(idx)} 
+        className={`relative h-12 w-12 sm:h-14 sm:w-14 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-300 ${footerGalleryIndex === idx ? "scale-105 shadow-md ring-2 ring-offset-1" : "opacity-50 hover:opacity-100"}`} 
+        style={{ borderColor: footerGalleryIndex === idx ? currentTheme.accent : currentTheme.border }}
+      >
+        <LoadedImage 
+          src={item.url} 
+          alt="" 
+          containerClassName="h-full w-full bg-black/40" 
+          className="h-full w-full object-contain" 
+        />
+      </button>
+    ))}
+  </div>
+)}
             </div>
           </section>
         )}
