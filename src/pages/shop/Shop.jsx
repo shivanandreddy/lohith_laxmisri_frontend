@@ -327,11 +327,11 @@ export default function Shop() {
               <h4 className="text-xs font-bold uppercase tracking-wider mb-3 sm:mb-4">Contact Boutique</h4>
               <div className="flex items-start gap-2 text-xs opacity-70">
                 <MapPin size={15} style={{ color: currentTheme.accent }} className="shrink-0 mt-0.5" />
-                <span className="text-black">Boutique Hub, Main Bazaar, Hyderabad</span>
+                <span className="text-black">15-8-431/1&2, New, Feelkhana Rd, near Santhoshimata Temple, Begum Bazar, Afzal Gunj, Hyderabad, Telangana 500012</span>
               </div>
               <div className="flex items-center gap-2 text-xs opacity-70">
                 <Phone size={15} style={{ color: currentTheme.accent }} className="shrink-0" />
-                <span className="text-black">+91 98765 43210</span>
+                <span className="text-black">+91 99495 51967</span>
               </div>
               <div className="flex items-center gap-2 text-xs opacity-70">
                 <Mail size={15} style={{ color: currentTheme.accent }} className="shrink-0" />
