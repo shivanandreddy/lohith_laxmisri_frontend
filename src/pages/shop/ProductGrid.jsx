@@ -8,13 +8,13 @@ export default function ProductGrid({ currentTheme, loading, error, fetchProduct
   return (
     <section id="shop-products" className="mx-auto w-full max-w-7xl px-3 py-6 sm:px-6 sm:py-8 lg:px-8 mt-9">
       <div className="mb-6 flex flex-col items-center text-center">
-        <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] flex items-center gap-1.5 mb-1" style={{ color: currentTheme.accent }}>
+        <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] flex items-center gap-1.5 mb-1 text-black" >
           <Award size={13} /> Curated Boutique Showcase
         </p>
          <h2 className="text-3xl font-serif text-[#d4af37] tracking-widest mb-1 font-bold">
           Explore Our Collections
         </h2>
-        <p className="mt-1 text-xs opacity-70">
+        <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em] text-black">
           Select a category below to browse exquisite jewelry items
         </p>
       </div>

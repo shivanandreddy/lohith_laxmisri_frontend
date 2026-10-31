@@ -54,7 +54,7 @@ export default function InstagramVideos({ videos = [] }) {
           Follow us on Instagram
         </h2>
 
-        <p className="mt-1 text-[11px] sm:text-xs opacity-70 max-w-md mx-auto">
+        <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em] text-black">
           Explore our latest cinematic jewelry showcases and artisan crafting clips.
         </p>
       </div>

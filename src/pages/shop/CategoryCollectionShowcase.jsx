@@ -28,7 +28,7 @@ const CategoryCollectionShowcase = ({
         <h2 className="text-3xl font-serif text-[#d4af37] tracking-widest mb-1 font-bold">
           Handpicked Just for You
         </h2>
-        <p className="text-xs uppercase tracking-[0.3em] text-[#d4af37]/70 font-serif">
+        <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em] text-black">
           ✦ Exclusive Curated Masterpieces ✦
         </p>
       </div>
