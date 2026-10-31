@@ -10,6 +10,7 @@ import ProductGrid from "./ProductGrid";
 import CategoryView from "./CategoryView";
 import ProductModal from "./ProductModal";
 import CategoryCollectionShowcase from "./CategoryCollectionShowcase"; // <--- Imported Hexagon Mosaic Component
+import InstagramVideos from "./InstagramVideos";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -284,6 +285,8 @@ export default function Shop() {
             </div>
           </section>
         )}
+
+        <InstagramVideos />
       </main>
 
       <footer className="border-t transition-colors duration-300" style={{ borderColor: currentTheme.border }}>
